@@ -1,41 +1,23 @@
 import express from "express";
-import { z } from "zod";
 import db from "../db.js";
+import { createJobSchema, patchJobSchema } from "../schemas/jobs.js";
+import type { CreateJobInput, Job } from "../types/job.js";
 
 const jobsRouter = express.Router();
 
-const createJobSchema = z.object({
-  applied_date: z.string().optional(),
-  company: z.string().min(1, "company is required"),
-  notes: z.string().optional(),
-  role: z.string().min(1, "role is required"),
-  status: z.string().optional(),
-});
+const JOB_COLUMNS =
+  "id, company, role, status, applied_date, notes, created_at";
 
-const patchJobSchema = z.object({
-  applied_date: z.string().optional(),
-  company: z.string().min(1).optional(),
-  notes: z.string().optional(),
-  role: z.string().min(1).optional(),
-  status: z.string().optional(),
-});
-
-type CreateJobInput = z.infer<typeof createJobSchema>;
-type PatchJobInput = z.infer<typeof patchJobSchema>;
-
-interface JobRow {
-  id: number;
-  company: string;
-  role: string;
-  status: string | null;
-  applied_date: string | null;
-  notes: string | null;
-  created_at: Date;
+function parseIdParam(id: string): number | null {
+  const n = Number(id);
+  return Number.isInteger(n) && n > 0 ? n : null;
 }
 
 jobsRouter.get("/", async (_req, res) => {
   try {
-    const result = await db.query<JobRow>("SELECT * FROM jobs ORDER BY id");
+    const result = await db.query<Job>(
+      `SELECT ${JOB_COLUMNS} FROM jobs ORDER BY id`,
+    );
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -54,7 +36,7 @@ jobsRouter.post("/", async (req, res) => {
   try {
     const { company, role, status, applied_date, notes }: CreateJobInput =
       parsed.data;
-    const result = await db.query<JobRow>(
+    const result = await db.query<Job>(
       "INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [company, role, status ?? null, applied_date ?? null, notes ?? null],
     );
@@ -65,9 +47,20 @@ jobsRouter.post("/", async (req, res) => {
   }
 });
 
-const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
+const PATCH_FIELDS = [
+  "company",
+  "role",
+  "status",
+  "applied_date",
+  "notes",
+] as const;
 
 jobsRouter.patch("/:id", async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ error: "Invalid job ID" });
+  }
+
   const parsed = patchJobSchema.safeParse(req.body);
 
   if (!parsed.success) {
@@ -83,10 +76,10 @@ jobsRouter.patch("/:id", async (req, res) => {
 
   try {
     const setClauses = updates.map((f, i) => `${f} = $${i + 1}`).join(", ");
-    const values = updates.map((f) => data[f] ?? null);
-    values.push(req.params.id);
+    const values: (string | number | null)[] = updates.map((f) => data[f] ?? null);
+    values.push(id);
 
-    const result = await db.query<JobRow>(
+    const result = await db.query<Job>(
       `UPDATE jobs SET ${setClauses} WHERE id = $${values.length} RETURNING *`,
       values,
     );
@@ -103,10 +96,16 @@ jobsRouter.patch("/:id", async (req, res) => {
 });
 
 jobsRouter.delete("/:id", async (req, res) => {
+  const id = parseIdParam(req.params.id);
+  if (id === null) {
+    return res.status(400).json({ error: "Invalid job ID" });
+  }
+
   try {
-    const result = await db.query("DELETE FROM jobs WHERE id = $1 RETURNING id", [
-      req.params.id,
-    ]);
+    const result = await db.query(
+      "DELETE FROM jobs WHERE id = $1 RETURNING id",
+      [id],
+    );
     if (!result.rows[0]) {
       return res.status(404).json({ error: "Job not found" });
     }

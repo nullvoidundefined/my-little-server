@@ -4,7 +4,8 @@ import db from "./db.js";
 import { jobsRouter } from "./routes/jobs.js";
 
 const app = express();
-app.use(express.json());
+// TODO: Add authentication/authorization before exposing this API publicly.
+app.use(express.json({ limit: "10kb" }));
 
 // test db connection on startup
 db.query("SELECT NOW()")
