@@ -10,9 +10,12 @@
     "@types/express": "^5.0.6",
     "@types/node": "^25.3.0",
     "@types/pg": "^8.16.0",
+    "@types/supertest": "^6.0.2",
     "nodemon": "^3.1.14",
+    "supertest": "^7.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   },
   "name": "my-little-server",
   "scripts": {
@@ -20,7 +23,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "migrate:down": "node-pg-migrate down",
-    "migrate:up": "node-pg-migrate up"
+    "migrate:up": "node-pg-migrate up",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "type": "module",
   "version": "1.0.0"
