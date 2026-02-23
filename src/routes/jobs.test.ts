@@ -5,6 +5,35 @@ import request from "supertest";
 import db from "../db.js";
 import { jobsRouter } from "./jobs.js";
 
+/**
+ * Test index — keep this in sync when adding, renaming, or removing tests.
+ *
+ * GET /jobs
+ *   - returns all jobs ordered by id
+ *   - returns 500 when db.query fails
+ *
+ * POST /jobs
+ *   - creates a job with valid body
+ *   - creates a job with only required fields (company, role)
+ *   - returns 400 when company is missing
+ *   - returns 400 when role is missing
+ *   - returns 400 when body is empty
+ *   - returns 500 when db.query fails
+ *
+ * PATCH /jobs/:id
+ *   - updates only provided fields
+ *   - updates multiple fields when provided
+ *   - returns 400 when no fields to update
+ *   - returns 400 when provided field fails validation
+ *   - returns 404 when job not found
+ *   - returns 500 when db.query fails
+ *
+ * DELETE /jobs/:id
+ *   - returns 204 when job is deleted
+ *   - returns 404 when job not found
+ *   - returns 500 when db.query fails
+ */
+
 vi.mock("../db.js", () => ({
   default: {
     query: vi.fn(),
@@ -180,6 +209,177 @@ describe("POST /jobs", () => {
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to create job" });
+    consoleSpy.mockRestore();
+  });
+});
+
+describe("PATCH /jobs/:id", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("updates only provided fields", async () => {
+    const updated = {
+      id: 1,
+      company: "Acme",
+      role: "Engineer",
+      status: "interviewing",
+      applied_date: "2025-01-01",
+      notes: null,
+      created_at: new Date("2025-01-01"),
+    };
+    mockQuery.mockResolvedValueOnce({
+      rows: [updated],
+      rowCount: 1,
+      command: "",
+      oid: 0,
+      fields: [],
+    } as QueryResult);
+
+    const res = await request(app)
+      .patch("/jobs/1")
+      .send({ status: "interviewing" });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({ id: 1, status: "interviewing" });
+    expect(mockQuery).toHaveBeenCalledWith(
+      "UPDATE jobs SET status = $1 WHERE id = $2 RETURNING *",
+      ["interviewing", "1"],
+    );
+  });
+
+  it("updates multiple fields when provided", async () => {
+    const updated = {
+      id: 1,
+      company: "Acme",
+      role: "Senior Engineer",
+      status: "offered",
+      applied_date: "2025-01-15",
+      notes: "Call back Monday",
+      created_at: new Date("2025-01-01"),
+    };
+    mockQuery.mockResolvedValueOnce({
+      rows: [updated],
+      rowCount: 1,
+      command: "",
+      oid: 0,
+      fields: [],
+    } as QueryResult);
+
+    const res = await request(app).patch("/jobs/1").send({
+      role: "Senior Engineer",
+      status: "offered",
+      notes: "Call back Monday",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      role: "Senior Engineer",
+      status: "offered",
+      notes: "Call back Monday",
+    });
+    expect(mockQuery).toHaveBeenCalledWith(
+      "UPDATE jobs SET role = $1, status = $2, notes = $3 WHERE id = $4 RETURNING *",
+      ["Senior Engineer", "offered", "Call back Monday", "1"],
+    );
+  });
+
+  it("returns 400 when no fields to update", async () => {
+    const res = await request(app).patch("/jobs/1").send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body).toEqual({ error: "No fields to update" });
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 when provided field fails validation", async () => {
+    const res = await request(app)
+      .patch("/jobs/1")
+      .send({ company: "" });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toBeDefined();
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 when job not found", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [],
+      rowCount: 0,
+      command: "",
+      oid: 0,
+      fields: [],
+    } as QueryResult);
+
+    const res = await request(app)
+      .patch("/jobs/999")
+      .send({ status: "applied" });
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Job not found" });
+  });
+
+  it("returns 500 when db.query fails", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockQuery.mockRejectedValueOnce(new Error("DB error"));
+
+    const res = await request(app)
+      .patch("/jobs/1")
+      .send({ status: "applied" });
+
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ error: "Failed to update job" });
+    consoleSpy.mockRestore();
+  });
+});
+
+describe("DELETE /jobs/:id", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("returns 204 when job is deleted", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [{ id: 1 }],
+      rowCount: 1,
+      command: "",
+      oid: 0,
+      fields: [],
+    } as QueryResult);
+
+    const res = await request(app).delete("/jobs/1");
+
+    expect(res.status).toBe(204);
+    expect(res.body).toEqual({});
+    expect(mockQuery).toHaveBeenCalledWith(
+      "DELETE FROM jobs WHERE id = $1 RETURNING id",
+      ["1"],
+    );
+  });
+
+  it("returns 404 when job not found", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [],
+      rowCount: 0,
+      command: "",
+      oid: 0,
+      fields: [],
+    } as QueryResult);
+
+    const res = await request(app).delete("/jobs/999");
+
+    expect(res.status).toBe(404);
+    expect(res.body).toEqual({ error: "Job not found" });
+  });
+
+  it("returns 500 when db.query fails", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockQuery.mockRejectedValueOnce(new Error("DB error"));
+
+    const res = await request(app).delete("/jobs/1");
+
+    expect(res.status).toBe(500);
+    expect(res.body).toEqual({ error: "Failed to delete job" });
     consoleSpy.mockRestore();
   });
 });
