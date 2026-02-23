@@ -1,0 +1,25 @@
+info:
+  name: Create Job
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/jobs"
+  body:
+    type: json
+    data: |-
+      {
+        "company": "Acme Corp",
+        "role": "Senior Frontend Engineer",
+        "status": "applied",
+        "applied_date": "2026-02-23",
+        "notes": "Found via LinkedIn"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
