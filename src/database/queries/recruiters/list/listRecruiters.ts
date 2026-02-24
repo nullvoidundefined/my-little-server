@@ -4,7 +4,7 @@ import { logger } from "../../../../config/loggerConfig.js";
 import type { Recruiter } from "../../../../types/recruiter.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-const RECRUITER_COLUMNS = "id, name, email, phone, title, linkedin_url, firm_id, notes, created_at";
+const RECRUITER_COLUMNS = "id, name, email, phone, title, linkedin_url, firm_id, notes, created_at, updated_at";
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
 

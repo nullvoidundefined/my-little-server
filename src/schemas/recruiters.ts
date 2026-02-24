@@ -18,6 +18,7 @@ export const patchRecruiterSchema = createRecruiterSchema.partial().refine(
 export const recruiterSchema = createRecruiterSchema.extend({
   id: z.number(),
   created_at: z.coerce.date(),
+  updated_at: z.coerce.date().nullable(),
 });
 
 export type Recruiter = z.infer<typeof recruiterSchema>;

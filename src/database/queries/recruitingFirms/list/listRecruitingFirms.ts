@@ -4,7 +4,7 @@ import { logger } from "../../../../config/loggerConfig.js";
 import type { RecruitingFirm } from "../../../../types/recruitingFirm.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at";
+const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at, updated_at";
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
 

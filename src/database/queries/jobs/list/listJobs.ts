@@ -4,7 +4,7 @@ import { logger } from "../../../../config/loggerConfig.js";
 import type { Job } from "../../../../types/job.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-const JOB_COLUMNS = "id, company, role, status, applied_date, notes, created_at";
+const JOB_COLUMNS = "id, company, role, status, applied_date, notes, created_at, updated_at";
 const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 100;
 

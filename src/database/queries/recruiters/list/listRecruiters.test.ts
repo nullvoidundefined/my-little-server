@@ -37,6 +37,7 @@ describe("listRecruiters", () => {
         firm_id: 42,
         notes: "Top recruiter",
         created_at: new Date("2025-01-01"),
+        updated_at: new Date("2025-01-02"),
       },
     ];
 
@@ -57,10 +58,11 @@ describe("listRecruiters", () => {
       {
         ...row!,
         created_at: row!.created_at.toISOString(),
+        updated_at: row!.updated_at.toISOString(),
       },
     ]);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT id, name, email, phone, title, linkedin_url, firm_id, notes, created_at FROM recruiters ORDER BY id LIMIT $1 OFFSET $2",
+      "SELECT id, name, email, phone, title, linkedin_url, firm_id, notes, created_at, updated_at FROM recruiters ORDER BY id LIMIT $1 OFFSET $2",
       [50, 0],
     );
   });

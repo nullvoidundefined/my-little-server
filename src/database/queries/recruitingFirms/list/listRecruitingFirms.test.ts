@@ -34,6 +34,7 @@ describe("listRecruitingFirms", () => {
         linkedin_url: "https://linkedin.com/company/acme",
         notes: "Top firm",
         created_at: new Date("2025-01-01"),
+        updated_at: new Date("2025-01-02"),
       },
     ];
 
@@ -54,10 +55,11 @@ describe("listRecruitingFirms", () => {
       {
         ...row!,
         created_at: row!.created_at.toISOString(),
+        updated_at: row!.updated_at.toISOString(),
       },
     ]);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT id, name, website, linkedin_url, notes, created_at FROM recruiting_firms ORDER BY id LIMIT $1 OFFSET $2",
+      "SELECT id, name, website, linkedin_url, notes, created_at, updated_at FROM recruiting_firms ORDER BY id LIMIT $1 OFFSET $2",
       [50, 0],
     );
   });

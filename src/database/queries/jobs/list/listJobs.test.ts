@@ -35,6 +35,7 @@ describe("listJobs", () => {
         notes: null,
         role: "Engineer",
         status: "applied",
+        updated_at: new Date("2025-01-02"),
       },
     ];
     mockQuery.mockResolvedValueOnce({
@@ -54,10 +55,11 @@ describe("listJobs", () => {
       {
         ...row!,
         created_at: row!.created_at.toISOString(),
+        updated_at: row!.updated_at.toISOString(),
       },
     ]);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT id, company, role, status, applied_date, notes, created_at FROM jobs ORDER BY id LIMIT $1 OFFSET $2",
+      "SELECT id, company, role, status, applied_date, notes, created_at, updated_at FROM jobs ORDER BY id LIMIT $1 OFFSET $2",
       [50, 0],
     );
   });

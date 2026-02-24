@@ -18,6 +18,7 @@ export const patchJobSchema = createJobSchema.partial().refine(
 export const jobSchema = createJobSchema.extend({
   id: z.number(),
   created_at: z.coerce.date(),
+  updated_at: z.coerce.date().nullable(),
 });
 
 export type Job = z.infer<typeof jobSchema>;
