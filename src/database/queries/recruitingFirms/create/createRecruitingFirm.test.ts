@@ -138,4 +138,3 @@ describe("createRecruitingFirm", () => {
     consoleSpy.mockRestore();
   });
 });
-

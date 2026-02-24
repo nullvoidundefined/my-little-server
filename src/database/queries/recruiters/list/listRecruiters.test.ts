@@ -73,4 +73,3 @@ describe("listRecruiters", () => {
     consoleSpy.mockRestore();
   });
 });
-

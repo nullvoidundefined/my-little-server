@@ -78,4 +78,3 @@ describe("deleteRecruitingFirm", () => {
     consoleSpy.mockRestore();
   });
 });
-

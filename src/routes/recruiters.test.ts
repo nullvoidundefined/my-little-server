@@ -55,4 +55,3 @@ describe("recruitersRouter", () => {
     expect(res.body).toEqual({});
   });
 });
-

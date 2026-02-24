@@ -39,19 +39,19 @@
   },
   "name": "my-little-server",
   "scripts": {
-    "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js",
-    "migrate:down": "node-pg-migrate down",
-    "migrate:up": "node-pg-migrate up",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "dev": "tsx watch src/index.ts",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "migrate:down": "node-pg-migrate down",
+    "migrate:up": "node-pg-migrate up",
+    "prepare": "lefthook install",
+    "start": "node dist/index.js",
+    "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "prepare": "lefthook install"
+    "test:watch": "vitest"
   },
   "type": "module",
   "version": "1.0.0"

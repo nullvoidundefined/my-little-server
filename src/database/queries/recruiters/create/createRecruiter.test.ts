@@ -139,4 +139,3 @@ describe("createRecruiter", () => {
     consoleSpy.mockRestore();
   });
 });
-

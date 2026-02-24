@@ -70,4 +70,3 @@ describe("listRecruitingFirms", () => {
     consoleSpy.mockRestore();
   });
 });
-

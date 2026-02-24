@@ -13,9 +13,7 @@ vi.mock("../database/queries/jobs/create/createJob.js", () => ({
 }));
 
 vi.mock("../database/queries/jobs/update/updateJob.js", () => ({
-  updateJob: vi.fn((req, res) =>
-    res.status(200).json({ route: "updateJob", id: req.params.id }),
-  ),
+  updateJob: vi.fn((req, res) => res.status(200).json({ route: "updateJob", id: req.params.id })),
 }));
 
 vi.mock("../database/queries/jobs/delete/deleteJob.js", () => ({
@@ -55,4 +53,3 @@ describe("jobsRouter", () => {
     expect(res.body).toEqual({});
   });
 });
-

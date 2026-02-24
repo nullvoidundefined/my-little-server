@@ -74,13 +74,11 @@ describe("updateRecruitingFirm", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app)
-      .patch("/recruiting-firms/1")
-      .send({
-        linkedin_url: "https://linkedin.com/company/acme",
-        name: "Acme Recruiting",
-        notes: "Updated notes",
-      });
+    const res = await request(app).patch("/recruiting-firms/1").send({
+      linkedin_url: "https://linkedin.com/company/acme",
+      name: "Acme Recruiting",
+      notes: "Updated notes",
+    });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
@@ -113,9 +111,7 @@ describe("updateRecruitingFirm", () => {
   });
 
   it("returns 400 when provided field fails validation", async () => {
-    const res = await request(app)
-      .patch("/recruiting-firms/1")
-      .send({ website: "not-a-url" });
+    const res = await request(app).patch("/recruiting-firms/1").send({ website: "not-a-url" });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
@@ -153,4 +149,3 @@ describe("updateRecruitingFirm", () => {
     consoleSpy.mockRestore();
   });
 });
-

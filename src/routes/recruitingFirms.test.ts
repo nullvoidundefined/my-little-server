@@ -5,9 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { recruitingFirmsRouter } from "./recruitingFirms.js";
 
 vi.mock("../database/queries/recruitingFirms/list/listRecruitingFirms.js", () => ({
-  listRecruitingFirms: vi.fn((_req, res) =>
-    res.status(200).json({ route: "listRecruitingFirms" }),
-  ),
+  listRecruitingFirms: vi.fn((_req, res) => res.status(200).json({ route: "listRecruitingFirms" })),
 }));
 
 vi.mock("../database/queries/recruitingFirms/create/createRecruitingFirm.js", () => ({
@@ -59,4 +57,3 @@ describe("recruitingFirmsRouter", () => {
     expect(res.body).toEqual({});
   });
 });
-
