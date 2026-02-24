@@ -126,7 +126,6 @@ describe("createRecruitingFirm", () => {
   });
 
   it("returns 500 when db.query fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
     const res = await request(app)
@@ -135,6 +134,5 @@ describe("createRecruitingFirm", () => {
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to create recruiting firm" });
-    consoleSpy.mockRestore();
   });
 });

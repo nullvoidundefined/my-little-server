@@ -137,13 +137,11 @@ describe("updateRecruiter", () => {
   });
 
   it("returns 500 when db.query fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
     const res = await request(app).patch("/recruiters/1").send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to update recruiter" });
-    consoleSpy.mockRestore();
   });
 });

@@ -65,13 +65,11 @@ describe("deleteJob", () => {
   });
 
   it("returns 500 when db.query fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
     const res = await request(app).delete("/jobs/1");
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to delete job" });
-    consoleSpy.mockRestore();
   });
 });

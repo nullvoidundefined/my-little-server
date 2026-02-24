@@ -127,7 +127,6 @@ describe("createRecruiter", () => {
   });
 
   it("returns 500 when db.query fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
     const res = await request(app)
@@ -136,6 +135,5 @@ describe("createRecruiter", () => {
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to create recruiter" });
-    consoleSpy.mockRestore();
   });
 });
