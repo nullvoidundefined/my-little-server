@@ -9,10 +9,7 @@ async function deleteJob(request: Request, response: Response) {
   }
 
   try {
-    const result = await db.query(
-      "DELETE FROM jobs WHERE id = $1 RETURNING id",
-      [id],
-    );
+    const result = await db.query("DELETE FROM jobs WHERE id = $1 RETURNING id", [id]);
 
     if (!result.rows[0]) {
       return response.status(404).json({ error: "Job not found" });

@@ -10,4 +10,3 @@ pre-push:
   commands:
     tests:
       run: npm run test:coverage
-

@@ -12,8 +12,7 @@ async function createJob(request: Request, response: Response) {
   }
 
   try {
-    const { company, role, status, applied_date, notes }: CreateJobInput =
-      parsed.data;
+    const { company, role, status, applied_date, notes }: CreateJobInput = parsed.data;
     const result = await db.query<Job>(
       "INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *",
       [company, role, status ?? null, applied_date ?? null, notes ?? null],

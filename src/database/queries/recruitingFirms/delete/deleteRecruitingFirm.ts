@@ -9,10 +9,7 @@ async function deleteRecruitingFirm(request: Request, response: Response) {
   }
 
   try {
-    const result = await db.query(
-      "DELETE FROM recruiting_firms WHERE id = $1 RETURNING id",
-      [id],
-    );
+    const result = await db.query("DELETE FROM recruiting_firms WHERE id = $1 RETURNING id", [id]);
 
     if (!result.rows[0]) {
       return response.status(404).json({ error: "Recruiting firm not found" });
@@ -21,11 +18,8 @@ async function deleteRecruitingFirm(request: Request, response: Response) {
     return response.status(204).send();
   } catch (err) {
     console.error(err);
-    return response
-      .status(500)
-      .json({ error: "Failed to delete recruiting firm" });
+    return response.status(500).json({ error: "Failed to delete recruiting firm" });
   }
 }
 
 export { deleteRecruitingFirm };
-

@@ -12,4 +12,3 @@ recruitingFirmsRouter.patch("/:id", updateRecruitingFirm);
 recruitingFirmsRouter.delete("/:id", deleteRecruitingFirm);
 
 export { recruitingFirmsRouter };
-

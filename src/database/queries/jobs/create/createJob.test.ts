@@ -83,9 +83,7 @@ describe("createJob", () => {
       rows: [newJob],
     } as QueryResult);
 
-    const res = await request(app)
-      .post("/jobs")
-      .send({ company: "Acme", role: "Engineer" });
+    const res = await request(app).post("/jobs").send({ company: "Acme", role: "Engineer" });
 
     expect(res.status).toBe(201);
     expect(res.body).toMatchObject({ company: "Acme", role: "Engineer" });
@@ -125,9 +123,7 @@ describe("createJob", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
-    const res = await request(app)
-      .post("/jobs")
-      .send({ company: "Acme", role: "Engineer" });
+    const res = await request(app).post("/jobs").send({ company: "Acme", role: "Engineer" });
 
     expect(res.status).toBe(500);
     expect(res.body).toEqual({ error: "Failed to create job" });

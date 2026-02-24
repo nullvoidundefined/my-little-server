@@ -1,12 +1,6 @@
 import { z } from "zod";
 
-export const JOB_STATUSES = [
-  "applied",
-  "interviewing",
-  "offered",
-  "rejected",
-  "accepted",
-] as const;
+export const JOB_STATUSES = ["applied", "interviewing", "offered", "rejected", "accepted"] as const;
 
 export const createJobSchema = z.object({
   applied_date: z.string().date().optional(),

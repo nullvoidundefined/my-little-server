@@ -2,8 +2,7 @@ import type { Request, Response } from "express";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 import type { Recruiter } from "../../../../types/recruiter.js";
 
-const RECRUITER_COLUMNS =
-  "id, name, email, phone, title, linkedin_url, firm_id, notes, created_at";
+const RECRUITER_COLUMNS = "id, name, email, phone, title, linkedin_url, firm_id, notes, created_at";
 
 async function listRecruiters(_request: Request, response: Response) {
   try {
@@ -18,4 +17,3 @@ async function listRecruiters(_request: Request, response: Response) {
 }
 
 export { listRecruiters };
-

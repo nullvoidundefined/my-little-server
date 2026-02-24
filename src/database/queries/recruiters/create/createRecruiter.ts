@@ -1,10 +1,7 @@
 import type { Request, Response } from "express";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 import { createRecruiterSchema } from "../../../../schemas/recruiters.js";
-import type {
-  CreateRecruiterInput,
-  Recruiter,
-} from "../../../../types/recruiter.js";
+import type { CreateRecruiterInput, Recruiter } from "../../../../types/recruiter.js";
 
 async function createRecruiter(request: Request, response: Response) {
   const parsed = createRecruiterSchema.safeParse(request.body);
@@ -15,15 +12,8 @@ async function createRecruiter(request: Request, response: Response) {
   }
 
   try {
-    const {
-      name,
-      email,
-      phone,
-      title,
-      linkedin_url,
-      firm_id,
-      notes,
-    }: CreateRecruiterInput = parsed.data;
+    const { name, email, phone, title, linkedin_url, firm_id, notes }: CreateRecruiterInput =
+      parsed.data;
 
     const result = await db.query<Recruiter>(
       "INSERT INTO recruiters (name, email, phone, title, linkedin_url, firm_id, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
@@ -46,4 +36,3 @@ async function createRecruiter(request: Request, response: Response) {
 }
 
 export { createRecruiter };
-

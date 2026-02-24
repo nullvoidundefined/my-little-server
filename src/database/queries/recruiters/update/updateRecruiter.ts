@@ -40,13 +40,9 @@ async function updateRecruiter(request: Request, response: Response) {
   }
 
   try {
-    const setClauses = updates
-      .map((field, index) => `${field} = $${index + 1}`)
-      .join(", ");
+    const setClauses = updates.map((field, index) => `${field} = $${index + 1}`).join(", ");
 
-    const values: (string | number | null)[] = updates.map(
-      (field) => data[field] ?? null,
-    );
+    const values: (string | number | null)[] = updates.map((field) => data[field] ?? null);
     values.push(id);
 
     const result = await db.query<Recruiter>(
@@ -66,4 +62,3 @@ async function updateRecruiter(request: Request, response: Response) {
 }
 
 export { updateRecruiter };
-

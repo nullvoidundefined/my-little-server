@@ -42,9 +42,7 @@ describe("updateJob", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app)
-      .patch("/jobs/1")
-      .send({ status: "interviewing" });
+    const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({ id: 1, status: "interviewing" });
@@ -99,9 +97,7 @@ describe("updateJob", () => {
   });
 
   it("returns 400 when id is invalid", async () => {
-    const res = await request(app)
-      .patch("/jobs/abc")
-      .send({ status: "applied" });
+    const res = await request(app).patch("/jobs/abc").send({ status: "applied" });
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "Invalid job ID" });
@@ -125,9 +121,7 @@ describe("updateJob", () => {
       rows: [],
     } as QueryResult);
 
-    const res = await request(app)
-      .patch("/jobs/999")
-      .send({ status: "applied" });
+    const res = await request(app).patch("/jobs/999").send({ status: "applied" });
 
     expect(res.status).toBe(404);
     expect(res.body).toEqual({ error: "Job not found" });

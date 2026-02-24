@@ -9,10 +9,7 @@ async function deleteRecruiter(request: Request, response: Response) {
   }
 
   try {
-    const result = await db.query(
-      "DELETE FROM recruiters WHERE id = $1 RETURNING id",
-      [id],
-    );
+    const result = await db.query("DELETE FROM recruiters WHERE id = $1 RETURNING id", [id]);
 
     if (!result.rows[0]) {
       return response.status(404).json({ error: "Recruiter not found" });
@@ -26,4 +23,3 @@ async function deleteRecruiter(request: Request, response: Response) {
 }
 
 export { deleteRecruiter };
-

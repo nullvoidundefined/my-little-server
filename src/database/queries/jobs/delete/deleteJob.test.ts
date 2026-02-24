@@ -44,10 +44,7 @@ describe("deleteJob", () => {
 
     expect(res.status).toBe(204);
     expect(res.body).toEqual({});
-    expect(mockQuery).toHaveBeenCalledWith(
-      "DELETE FROM jobs WHERE id = $1 RETURNING id",
-      [1],
-    );
+    expect(mockQuery).toHaveBeenCalledWith("DELETE FROM jobs WHERE id = $1 RETURNING id", [1]);
   });
 
   it("returns 404 when job not found", async () => {

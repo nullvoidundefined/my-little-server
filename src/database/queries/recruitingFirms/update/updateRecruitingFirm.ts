@@ -32,13 +32,9 @@ async function updateRecruitingFirm(request: Request, response: Response) {
   }
 
   try {
-    const setClauses = updates
-      .map((field, index) => `${field} = $${index + 1}`)
-      .join(", ");
+    const setClauses = updates.map((field, index) => `${field} = $${index + 1}`).join(", ");
 
-    const values: (string | number | null)[] = updates.map(
-      (field) => data[field] ?? null,
-    );
+    const values: (string | number | null)[] = updates.map((field) => data[field] ?? null);
     values.push(id);
 
     const result = await db.query<RecruitingFirm>(
@@ -53,11 +49,8 @@ async function updateRecruitingFirm(request: Request, response: Response) {
     return response.json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    return response
-      .status(500)
-      .json({ error: "Failed to update recruiting firm" });
+    return response.status(500).json({ error: "Failed to update recruiting firm" });
   }
 }
 
 export { updateRecruitingFirm };
-

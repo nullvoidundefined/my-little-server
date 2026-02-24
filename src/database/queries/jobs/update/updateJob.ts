@@ -3,13 +3,7 @@ import db from "../../../utilities/connectionPool/connectionPool.js";
 import { patchJobSchema } from "../../../../schemas/jobs.js";
 import type { Job } from "../../../../types/job.js";
 
-const PATCH_FIELDS = [
-  "company",
-  "role",
-  "status",
-  "applied_date",
-  "notes",
-] as const;
+const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
 
 function parseIdParam(id: string): number | null {
   const n = Number(id);
@@ -39,9 +33,7 @@ async function updateJob(request: Request, response: Response) {
 
   try {
     const setClauses = updates.map((f, i) => `${f} = $${i + 1}`).join(", ");
-    const values: (string | number | null)[] = updates.map(
-      (f) => data[f] ?? null,
-    );
+    const values: (string | number | null)[] = updates.map((f) => data[f] ?? null);
     values.push(id);
 
     const result = await db.query<Job>(

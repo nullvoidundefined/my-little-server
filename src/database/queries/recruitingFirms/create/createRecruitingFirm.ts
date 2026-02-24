@@ -15,12 +15,7 @@ async function createRecruitingFirm(request: Request, response: Response) {
   }
 
   try {
-    const {
-      name,
-      website,
-      linkedin_url,
-      notes,
-    }: CreateRecruitingFirmInput = parsed.data;
+    const { name, website, linkedin_url, notes }: CreateRecruitingFirmInput = parsed.data;
 
     const result = await db.query<RecruitingFirm>(
       "INSERT INTO recruiting_firms (name, website, linkedin_url, notes) VALUES ($1, $2, $3, $4) RETURNING *",
@@ -30,11 +25,8 @@ async function createRecruitingFirm(request: Request, response: Response) {
     return response.status(201).json(result.rows[0]);
   } catch (err) {
     console.error(err);
-    return response
-      .status(500)
-      .json({ error: "Failed to create recruiting firm" });
+    return response.status(500).json({ error: "Failed to create recruiting firm" });
   }
 }
 
 export { createRecruitingFirm };
-

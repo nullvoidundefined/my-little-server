@@ -41,4 +41,3 @@ jobs:
 
       - name: npm audit (high severity and above)
         run: npm audit --audit-level=high
-
