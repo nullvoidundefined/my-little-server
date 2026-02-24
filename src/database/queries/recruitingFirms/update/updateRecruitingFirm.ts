@@ -12,14 +12,14 @@ async function updateRecruitingFirm(request: Request, response: Response) {
   const id = parseIdParam(request.params.id);
 
   if (id === null) {
-    return response.status(400).json({ error: "Invalid recruiting firm ID" });
+    return response.status(400).json({ error: { message: "Invalid recruiting firm ID" } });
   }
 
   const parsed = patchRecruitingFirmSchema.safeParse(request.body);
 
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join("; ");
-    return response.status(400).json({ error: message });
+    return response.status(400).json({ error: { message } });
   }
 
   const data = parsed.data;
@@ -37,13 +37,13 @@ async function updateRecruitingFirm(request: Request, response: Response) {
     );
 
     if (!result.rows[0]) {
-      return response.status(404).json({ error: "Recruiting firm not found" });
+      return response.status(404).json({ error: { message: "Recruiting firm not found" } });
     }
 
     return response.json(result.rows[0]);
   } catch (err) {
     logger.error({ err }, "Failed to update recruiting firm");
-    return response.status(500).json({ error: "Failed to update recruiting firm" });
+    return response.status(500).json({ error: { message: "Failed to update recruiting firm" } });
   }
 }
 

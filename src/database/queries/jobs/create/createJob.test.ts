@@ -99,8 +99,8 @@ describe("createJob", () => {
     const res = await request(app).post("/jobs").send({ role: "Engineer" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(typeof res.body.error).toBe("string");
+    expect(res.body.error.message).toBeDefined();
+    expect(typeof res.body.error.message).toBe("string");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -108,8 +108,8 @@ describe("createJob", () => {
     const res = await request(app).post("/jobs").send({ company: "Acme" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(typeof res.body.error).toBe("string");
+    expect(res.body.error.message).toBeDefined();
+    expect(typeof res.body.error.message).toBe("string");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -117,7 +117,7 @@ describe("createJob", () => {
     const res = await request(app).post("/jobs").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body).toHaveProperty("error");
+    expect(res.body).toHaveProperty("error.message");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -127,6 +127,6 @@ describe("createJob", () => {
     const res = await request(app).post("/jobs").send({ company: "Acme", role: "Engineer" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to create job" });
+    expect(res.body).toEqual({ error: { message: "Failed to create job" } });
   });
 });

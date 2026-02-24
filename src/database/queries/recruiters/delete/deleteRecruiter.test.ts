@@ -29,7 +29,7 @@ describe("deleteRecruiter", () => {
     const res = await request(app).delete("/recruiters/abc");
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid recruiter ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid recruiter ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -64,7 +64,7 @@ describe("deleteRecruiter", () => {
     const res = await request(app).delete("/recruiters/999");
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Recruiter not found" });
+    expect(res.body).toEqual({ error: { message: "Recruiter not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -73,6 +73,6 @@ describe("deleteRecruiter", () => {
     const res = await request(app).delete("/recruiters/1");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to delete recruiter" });
+    expect(res.body).toEqual({ error: { message: "Failed to delete recruiter" } });
   });
 });

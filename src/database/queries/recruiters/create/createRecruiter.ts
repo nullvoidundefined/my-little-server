@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { createRecruiterSchema } from "../../../../schemas/recruiters.js";
 import type { CreateRecruiterInput, Recruiter } from "../../../../types/recruiter.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
@@ -9,7 +10,7 @@ async function createRecruiter(request: Request, response: Response) {
 
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join("; ");
-    return response.status(400).json({ error: message });
+    return response.status(400).json({ error: { message } });
   }
 
   try {
@@ -31,8 +32,8 @@ async function createRecruiter(request: Request, response: Response) {
 
     return response.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    return response.status(500).json({ error: "Failed to create recruiter" });
+    logger.error({ err }, "Failed to create recruiter");
+    return response.status(500).json({ error: { message: "Failed to create recruiter" } });
   }
 }
 

@@ -96,7 +96,7 @@ describe("updateRecruitingFirm", () => {
     const res = await request(app).patch("/recruiting-firms/1").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain("At least one field is required");
+    expect(res.body.error.message).toContain("At least one field is required");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -106,7 +106,7 @@ describe("updateRecruitingFirm", () => {
       .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid recruiting firm ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid recruiting firm ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -114,8 +114,8 @@ describe("updateRecruitingFirm", () => {
     const res = await request(app).patch("/recruiting-firms/1").send({ website: "not-a-url" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("website must be a valid URL");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("website must be a valid URL");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -133,7 +133,7 @@ describe("updateRecruitingFirm", () => {
       .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Recruiting firm not found" });
+    expect(res.body).toEqual({ error: { message: "Recruiting firm not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -144,6 +144,6 @@ describe("updateRecruitingFirm", () => {
       .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to update recruiting firm" });
+    expect(res.body).toEqual({ error: { message: "Failed to update recruiting firm" } });
   });
 });

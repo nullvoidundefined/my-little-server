@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { createJobSchema } from "../../../../schemas/jobs.js";
 import type { CreateJobInput, Job } from "../../../../types/job.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
@@ -9,7 +10,7 @@ async function createJob(request: Request, response: Response) {
 
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join("; ");
-    return response.status(400).json({ error: message });
+    return response.status(400).json({ error: { message } });
   }
 
   try {
@@ -20,8 +21,8 @@ async function createJob(request: Request, response: Response) {
     );
     return response.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    return response.status(500).json({ error: "Failed to create job" });
+    logger.error({ err }, "Failed to create job");
+    return response.status(500).json({ error: { message: "Failed to create job" } });
   }
 }
 

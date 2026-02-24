@@ -100,7 +100,7 @@ describe("updateRecruiter", () => {
     const res = await request(app).patch("/recruiters/1").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain("At least one field is required");
+    expect(res.body.error.message).toContain("At least one field is required");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -108,7 +108,7 @@ describe("updateRecruiter", () => {
     const res = await request(app).patch("/recruiters/abc").send({ email: "test@example.com" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid recruiter ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid recruiter ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -116,8 +116,8 @@ describe("updateRecruiter", () => {
     const res = await request(app).patch("/recruiters/1").send({ email: "not-an-email" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("email must be valid");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("email must be valid");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -133,7 +133,7 @@ describe("updateRecruiter", () => {
     const res = await request(app).patch("/recruiters/999").send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Recruiter not found" });
+    expect(res.body).toEqual({ error: { message: "Recruiter not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -142,6 +142,6 @@ describe("updateRecruiter", () => {
     const res = await request(app).patch("/recruiters/1").send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to update recruiter" });
+    expect(res.body).toEqual({ error: { message: "Failed to update recruiter" } });
   });
 });

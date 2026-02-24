@@ -29,7 +29,7 @@ describe("deleteJob", () => {
     const res = await request(app).delete("/jobs/abc");
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid job ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid job ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -61,7 +61,7 @@ describe("deleteJob", () => {
     const res = await request(app).delete("/jobs/999");
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Job not found" });
+    expect(res.body).toEqual({ error: { message: "Job not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -70,6 +70,6 @@ describe("deleteJob", () => {
     const res = await request(app).delete("/jobs/1");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to delete job" });
+    expect(res.body).toEqual({ error: { message: "Failed to delete job" } });
   });
 });

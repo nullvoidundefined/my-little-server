@@ -94,7 +94,7 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/1").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toContain("At least one field is required");
+    expect(res.body.error.message).toContain("At least one field is required");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -102,7 +102,7 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/abc").send({ status: "applied" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid job ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid job ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -110,7 +110,7 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/1").send({ company: "" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
+    expect(res.body.error.message).toBeDefined();
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -126,7 +126,7 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/999").send({ status: "applied" });
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Job not found" });
+    expect(res.body).toEqual({ error: { message: "Job not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -135,6 +135,6 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/1").send({ status: "applied" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to update job" });
+    expect(res.body).toEqual({ error: { message: "Failed to update job" } });
   });
 });

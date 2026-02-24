@@ -29,7 +29,7 @@ describe("deleteRecruitingFirm", () => {
     const res = await request(app).delete("/recruiting-firms/abc");
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid recruiting firm ID" });
+    expect(res.body).toEqual({ error: { message: "Invalid recruiting firm ID" } });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -64,7 +64,7 @@ describe("deleteRecruitingFirm", () => {
     const res = await request(app).delete("/recruiting-firms/999");
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Recruiting firm not found" });
+    expect(res.body).toEqual({ error: { message: "Recruiting firm not found" } });
   });
 
   it("returns 500 when db.query fails", async () => {
@@ -73,6 +73,6 @@ describe("deleteRecruitingFirm", () => {
     const res = await request(app).delete("/recruiting-firms/1");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to delete recruiting firm" });
+    expect(res.body).toEqual({ error: { message: "Failed to delete recruiting firm" } });
   });
 });

@@ -48,25 +48,26 @@ describe("listJobs", () => {
     const res = await request(app).get("/jobs");
 
     expect(res.status).toBe(200);
+    const row = rows[0];
+    expect(row).toBeDefined();
     expect(res.body).toEqual([
       {
-        ...rows[0],
-        created_at: rows[0].created_at.toISOString(),
+        ...row!,
+        created_at: row!.created_at.toISOString(),
       },
     ]);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT id, company, role, status, applied_date, notes, created_at FROM jobs ORDER BY id",
+      "SELECT id, company, role, status, applied_date, notes, created_at FROM jobs ORDER BY id LIMIT $1 OFFSET $2",
+      [50, 0],
     );
   });
 
   it("returns 500 when db.query fails", async () => {
-    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
     const res = await request(app).get("/jobs");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to fetch jobs" });
-    consoleSpy.mockRestore();
+    expect(res.body).toEqual({ error: { message: "Failed to fetch jobs" } });
   });
 });

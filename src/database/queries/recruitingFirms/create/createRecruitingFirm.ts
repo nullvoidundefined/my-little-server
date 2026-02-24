@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { createRecruitingFirmSchema } from "../../../../schemas/recruitingFirms.js";
 import type {
   CreateRecruitingFirmInput,
@@ -12,7 +13,7 @@ async function createRecruitingFirm(request: Request, response: Response) {
 
   if (!parsed.success) {
     const message = parsed.error.issues.map((e) => e.message).join("; ");
-    return response.status(400).json({ error: message });
+    return response.status(400).json({ error: { message } });
   }
 
   try {
@@ -25,8 +26,8 @@ async function createRecruitingFirm(request: Request, response: Response) {
 
     return response.status(201).json(result.rows[0]);
   } catch (err) {
-    console.error(err);
-    return response.status(500).json({ error: "Failed to create recruiting firm" });
+    logger.error({ err }, "Failed to create recruiting firm");
+    return response.status(500).json({ error: { message: "Failed to create recruiting firm" } });
   }
 }
 

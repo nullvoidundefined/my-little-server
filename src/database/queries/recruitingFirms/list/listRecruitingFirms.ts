@@ -1,19 +1,26 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import type { RecruitingFirm } from "../../../../types/recruitingFirm.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
 const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at";
+const DEFAULT_LIMIT = 50;
+const MAX_LIMIT = 100;
 
-async function listRecruitingFirms(_request: Request, response: Response) {
+async function listRecruitingFirms(request: Request, response: Response) {
+  const limit = Math.min(Math.max(1, Number(request.query.limit) || DEFAULT_LIMIT), MAX_LIMIT);
+  const offset = Math.max(0, Number(request.query.offset) || 0);
+
   try {
     const result = await db.query<RecruitingFirm>(
-      `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms ORDER BY id`,
+      `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms ORDER BY id LIMIT $1 OFFSET $2`,
+      [limit, offset],
     );
     return response.json(result.rows);
   } catch (err) {
-    console.error(err);
-    return response.status(500).json({ error: "Failed to fetch recruiting firms" });
+    logger.error({ err }, "Failed to fetch recruiting firms");
+    return response.status(500).json({ error: { message: "Failed to fetch recruiting firms" } });
   }
 }
 

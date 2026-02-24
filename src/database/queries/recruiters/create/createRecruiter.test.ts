@@ -110,8 +110,8 @@ describe("createRecruiter", () => {
     const res = await request(app).post("/recruiters").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("Invalid input");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("Invalid input");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -121,8 +121,8 @@ describe("createRecruiter", () => {
       .send({ name: "Jane Doe", linkedin_url: "not-a-url" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("linkedin_url must be a valid URL");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("linkedin_url must be a valid URL");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -134,6 +134,6 @@ describe("createRecruiter", () => {
       .send({ name: "Jane Doe", email: "jane@example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to create recruiter" });
+    expect(res.body).toEqual({ error: { message: "Failed to create recruiter" } });
   });
 });

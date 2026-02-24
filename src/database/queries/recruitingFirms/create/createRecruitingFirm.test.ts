@@ -98,8 +98,8 @@ describe("createRecruitingFirm", () => {
     const res = await request(app).post("/recruiting-firms").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("Invalid input");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("Invalid input");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -109,8 +109,8 @@ describe("createRecruitingFirm", () => {
       .send({ name: "Acme Recruiting", website: "not-a-url" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("website must be a valid URL");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("website must be a valid URL");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -120,8 +120,8 @@ describe("createRecruitingFirm", () => {
       .send({ name: "Acme Recruiting", linkedin_url: "not-a-url" });
 
     expect(res.status).toBe(400);
-    expect(res.body.error).toBeDefined();
-    expect(String(res.body.error)).toContain("linkedin_url must be a valid URL");
+    expect(res.body.error.message).toBeDefined();
+    expect(String(res.body.error.message)).toContain("linkedin_url must be a valid URL");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
@@ -133,6 +133,6 @@ describe("createRecruitingFirm", () => {
       .send({ name: "Acme Recruiting", website: "https://acme.example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to create recruiting firm" });
+    expect(res.body).toEqual({ error: { message: "Failed to create recruiting firm" } });
   });
 });
