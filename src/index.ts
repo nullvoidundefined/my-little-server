@@ -1,12 +1,15 @@
 import "dotenv/config";
 import express from "express";
+
 import db from "./database/utilities/connectionPool/connectionPool.js";
 import { jobsRouter } from "./routes/jobs.js";
 import { recruitersRouter } from "./routes/recruiters.js";
 import { recruitingFirmsRouter } from "./routes/recruitingFirms.js";
+import { httpLogger } from "./utils/logger.js";
 
 const app = express();
 // TODO: Add authentication/authorization before exposing this API publicly.
+app.use(httpLogger);
 app.use(express.json({ limit: "10kb" }));
 
 // test db connection on startup
@@ -19,4 +22,5 @@ app.use("/recruiters", recruitersRouter);
 app.use("/recruiting-firms", recruitingFirmsRouter);
 
 const PORT = process.env.PORT ?? 3000;
+
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
