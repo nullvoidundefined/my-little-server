@@ -4,5 +4,13 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: true,
+    coverage: {
+      reporter: ["text", "lcov"],
+      reportsDirectory: "coverage",
+      lines: 80,
+      branches: 80,
+      functions: 80,
+      statements: 80,
+    },
   },
 });
