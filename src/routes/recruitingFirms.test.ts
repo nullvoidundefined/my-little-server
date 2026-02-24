@@ -20,6 +20,12 @@ vi.mock("../database/queries/recruitingFirms/update/updateRecruitingFirm.js", ()
   ),
 }));
 
+vi.mock("../database/queries/recruitingFirms/get/getRecruitingFirm.js", () => ({
+  getRecruitingFirm: vi.fn((req, res) =>
+    res.status(200).json({ route: "getRecruitingFirm", id: req.params.id }),
+  ),
+}));
+
 vi.mock("../database/queries/recruitingFirms/delete/deleteRecruitingFirm.js", () => ({
   deleteRecruitingFirm: vi.fn((_req, res) => res.status(204).send()),
 }));
@@ -34,6 +40,13 @@ describe("recruitingFirmsRouter", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "listRecruitingFirms" });
+  });
+
+  it("routes GET /recruiting-firms/:id to getRecruitingFirm", async () => {
+    const res = await request(app).get("/recruiting-firms/123");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ route: "getRecruitingFirm", id: "123" });
   });
 
   it("routes POST /recruiting-firms to createRecruitingFirm", async () => {

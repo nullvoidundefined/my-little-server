@@ -16,6 +16,10 @@ vi.mock("../database/queries/jobs/update/updateJob.js", () => ({
   updateJob: vi.fn((req, res) => res.status(200).json({ route: "updateJob", id: req.params.id })),
 }));
 
+vi.mock("../database/queries/jobs/get/getJob.js", () => ({
+  getJob: vi.fn((req, res) => res.status(200).json({ route: "getJob", id: req.params.id })),
+}));
+
 vi.mock("../database/queries/jobs/delete/deleteJob.js", () => ({
   deleteJob: vi.fn((_req, res) => res.status(204).send()),
 }));
@@ -30,6 +34,13 @@ describe("jobsRouter", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "listJobs" });
+  });
+
+  it("routes GET /jobs/:id to getJob", async () => {
+    const res = await request(app).get("/jobs/123");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ route: "getJob", id: "123" });
   });
 
   it("routes POST /jobs to createJob", async () => {

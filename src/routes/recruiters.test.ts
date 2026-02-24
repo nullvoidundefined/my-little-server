@@ -18,6 +18,12 @@ vi.mock("../database/queries/recruiters/update/updateRecruiter.js", () => ({
   ),
 }));
 
+vi.mock("../database/queries/recruiters/get/getRecruiter.js", () => ({
+  getRecruiter: vi.fn((req, res) =>
+    res.status(200).json({ route: "getRecruiter", id: req.params.id }),
+  ),
+}));
+
 vi.mock("../database/queries/recruiters/delete/deleteRecruiter.js", () => ({
   deleteRecruiter: vi.fn((_req, res) => res.status(204).send()),
 }));
@@ -32,6 +38,13 @@ describe("recruitersRouter", () => {
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "listRecruiters" });
+  });
+
+  it("routes GET /recruiters/:id to getRecruiter", async () => {
+    const res = await request(app).get("/recruiters/123");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({ route: "getRecruiter", id: "123" });
   });
 
   it("routes POST /recruiters to createRecruiter", async () => {
