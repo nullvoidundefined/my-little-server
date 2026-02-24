@@ -7,7 +7,10 @@ export const createRecruitingFirmSchema = z.object({
   website: z.string().url("website must be a valid URL").optional(),
 });
 
-export const patchRecruitingFirmSchema = createRecruitingFirmSchema.partial();
+export const patchRecruitingFirmSchema = createRecruitingFirmSchema.partial().refine(
+  (data) => Object.values(data).some((v) => v !== undefined),
+  { message: "At least one field is required" },
+);
 
 export const recruitingFirmSchema = createRecruitingFirmSchema.extend({
   created_at: z.coerce.date(),

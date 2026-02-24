@@ -1,15 +1,12 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { patchRecruitingFirmSchema } from "../../../../schemas/recruitingFirms.js";
 import type { RecruitingFirm } from "../../../../types/recruitingFirm.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
+import { parseIdParam } from "../../../../utils/parseIdParam.js";
 
 const PATCH_FIELDS = ["linkedin_url", "name", "notes", "website"] as const;
-
-function parseIdParam(id: string): number | null {
-  const n = Number(id);
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
 
 async function updateRecruitingFirm(request: Request, response: Response) {
   const id = parseIdParam(request.params.id);
@@ -28,10 +25,6 @@ async function updateRecruitingFirm(request: Request, response: Response) {
   const data = parsed.data;
   const updates = PATCH_FIELDS.filter((field) => data[field] !== undefined);
 
-  if (updates.length === 0) {
-    return response.status(400).json({ error: "No fields to update" });
-  }
-
   try {
     const setClauses = updates.map((field, index) => `${field} = $${index + 1}`).join(", ");
 
@@ -49,7 +42,7 @@ async function updateRecruitingFirm(request: Request, response: Response) {
 
     return response.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to update recruiting firm");
     return response.status(500).json({ error: "Failed to update recruiting firm" });
   }
 }

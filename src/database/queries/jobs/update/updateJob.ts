@@ -1,15 +1,12 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { patchJobSchema } from "../../../../schemas/jobs.js";
 import type { Job } from "../../../../types/job.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
+import { parseIdParam } from "../../../../utils/parseIdParam.js";
 
 const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
-
-function parseIdParam(id: string): number | null {
-  const n = Number(id);
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
 
 async function updateJob(request: Request, response: Response) {
   const id = parseIdParam(request.params.id);
@@ -28,10 +25,6 @@ async function updateJob(request: Request, response: Response) {
   const data = parsed.data;
   const updates = PATCH_FIELDS.filter((f) => data[f] !== undefined);
 
-  if (updates.length === 0) {
-    return response.status(400).json({ error: "No fields to update" });
-  }
-
   try {
     const setClauses = updates.map((f, i) => `${f} = $${i + 1}`).join(", ");
     const values: (string | number | null)[] = updates.map((f) => data[f] ?? null);
@@ -48,7 +41,7 @@ async function updateJob(request: Request, response: Response) {
 
     return response.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to update job");
     return response.status(500).json({ error: "Failed to update job" });
   }
 }

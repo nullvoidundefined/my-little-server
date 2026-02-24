@@ -1,8 +1,10 @@
 import type { Request, Response } from "express";
 
+import { logger } from "../../../../config/loggerConfig.js";
 import { patchRecruiterSchema } from "../../../../schemas/recruiters.js";
 import type { Recruiter } from "../../../../types/recruiter.js";
 import db from "../../../utilities/connectionPool/connectionPool.js";
+import { parseIdParam } from "../../../../utils/parseIdParam.js";
 
 const PATCH_FIELDS = [
   "email",
@@ -13,11 +15,6 @@ const PATCH_FIELDS = [
   "phone",
   "title",
 ] as const;
-
-function parseIdParam(id: string): number | null {
-  const n = Number(id);
-  return Number.isInteger(n) && n > 0 ? n : null;
-}
 
 async function updateRecruiter(request: Request, response: Response) {
   const id = parseIdParam(request.params.id);
@@ -36,10 +33,6 @@ async function updateRecruiter(request: Request, response: Response) {
   const data = parsed.data;
   const updates = PATCH_FIELDS.filter((field) => data[field] !== undefined);
 
-  if (updates.length === 0) {
-    return response.status(400).json({ error: "No fields to update" });
-  }
-
   try {
     const setClauses = updates.map((field, index) => `${field} = $${index + 1}`).join(", ");
 
@@ -57,7 +50,7 @@ async function updateRecruiter(request: Request, response: Response) {
 
     return response.json(result.rows[0]);
   } catch (err) {
-    console.error(err);
+    logger.error({ err }, "Failed to update recruiter");
     return response.status(500).json({ error: "Failed to update recruiter" });
   }
 }

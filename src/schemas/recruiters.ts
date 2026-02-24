@@ -10,7 +10,10 @@ export const createRecruiterSchema = z.object({
   title: z.string().optional(),
 });
 
-export const patchRecruiterSchema = createRecruiterSchema.partial();
+export const patchRecruiterSchema = createRecruiterSchema.partial().refine(
+  (data) => Object.values(data).some((v) => v !== undefined),
+  { message: "At least one field is required" },
+);
 
 export const recruiterSchema = createRecruiterSchema.extend({
   id: z.number(),

@@ -94,7 +94,7 @@ describe("updateJob", () => {
     const res = await request(app).patch("/jobs/1").send({});
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "No fields to update" });
+    expect(res.body.error).toContain("At least one field is required");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 

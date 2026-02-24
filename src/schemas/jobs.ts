@@ -10,7 +10,10 @@ export const createJobSchema = z.object({
   status: z.enum(JOB_STATUSES).optional(),
 });
 
-export const patchJobSchema = createJobSchema.partial();
+export const patchJobSchema = createJobSchema.partial().refine(
+  (data) => Object.values(data).some((v) => v !== undefined),
+  { message: "At least one field is required" },
+);
 
 export const jobSchema = createJobSchema.extend({
   id: z.number(),
