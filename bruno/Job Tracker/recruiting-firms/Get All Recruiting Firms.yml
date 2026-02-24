@@ -1,0 +1,15 @@
+info:
+  name: Get All Recruiting Firms
+  type: http
+  seq: 1
+
+http:
+  method: GET
+  url: "{{foo}}/recruiting-firms"
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

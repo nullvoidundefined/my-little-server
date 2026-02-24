@@ -1,0 +1,27 @@
+info:
+  name: Create Recruiter
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/recruiters"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "alex.johnson@example.com",
+        "firm_id": 1,
+        "linkedin_url": "https://www.linkedin.com/in/alex-johnson",
+        "name": "Alex Johnson",
+        "notes": "Specializes in backend roles in fintech."
+        "phone": "+1-555-123-4567",
+        "title": "Senior Technical Recruiter",
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
