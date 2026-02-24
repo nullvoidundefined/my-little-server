@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { patchRecruitingFirmSchema } from "../../../../schemas/recruitingFirms.js";
 import type { RecruitingFirm } from "../../../../types/recruitingFirm.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 const PATCH_FIELDS = ["linkedin_url", "name", "notes", "website"] as const;
 

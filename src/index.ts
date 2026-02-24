@@ -1,14 +1,13 @@
 import "dotenv/config";
-import express from "express";
 import cors from "cors";
+import express from "express";
 import helmet from "helmet";
-import rateLimit from "express-rate-limit";
 
+import { httpLogger } from "./config/loggerConfig.js";
 import db from "./database/utilities/connectionPool/connectionPool.js";
 import { jobsRouter } from "./routes/jobs.js";
 import { recruitersRouter } from "./routes/recruiters.js";
 import { recruitingFirmsRouter } from "./routes/recruitingFirms.js";
-import { httpLogger } from "./config/loggerConfig.js";
 import { errorHandler } from "./utils/errorHandler.js";
 import { notFoundHandler } from "./utils/notFoundHandler.js";
 import { rateLimiter } from "./utils/rateLimiter.js";

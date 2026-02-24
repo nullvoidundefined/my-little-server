@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { patchRecruiterSchema } from "../../../../schemas/recruiters.js";
 import type { Recruiter } from "../../../../types/recruiter.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 const PATCH_FIELDS = [
   "email",

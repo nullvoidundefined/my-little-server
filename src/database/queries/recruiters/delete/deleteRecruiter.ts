@@ -1,4 +1,5 @@
 import type { Request, Response } from "express";
+
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
 async function deleteRecruiter(request: Request, response: Response) {

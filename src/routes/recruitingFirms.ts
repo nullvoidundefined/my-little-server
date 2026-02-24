@@ -1,4 +1,5 @@
 import express from "express";
+
 import { createRecruitingFirm } from "../database/queries/recruitingFirms/create/createRecruitingFirm.js";
 import { deleteRecruitingFirm } from "../database/queries/recruitingFirms/delete/deleteRecruitingFirm.js";
 import { listRecruitingFirms } from "../database/queries/recruitingFirms/list/listRecruitingFirms.js";

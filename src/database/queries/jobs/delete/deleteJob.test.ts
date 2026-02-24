@@ -1,8 +1,10 @@
 import express from "express";
 import type { QueryResult } from "pg";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import request from "supertest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { deleteJob } from "./deleteJob.js";
 
 vi.mock("../../../../db.js", () => ({

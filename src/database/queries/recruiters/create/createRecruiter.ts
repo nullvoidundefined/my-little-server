@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { createRecruiterSchema } from "../../../../schemas/recruiters.js";
 import type { CreateRecruiterInput, Recruiter } from "../../../../types/recruiter.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 async function createRecruiter(request: Request, response: Response) {
   const parsed = createRecruiterSchema.safeParse(request.body);

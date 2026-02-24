@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { patchJobSchema } from "../../../../schemas/jobs.js";
 import type { Job } from "../../../../types/job.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
 

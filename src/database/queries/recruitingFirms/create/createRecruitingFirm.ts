@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { createRecruitingFirmSchema } from "../../../../schemas/recruitingFirms.js";
 import type {
   CreateRecruitingFirmInput,
   RecruitingFirm,
 } from "../../../../types/recruitingFirm.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 async function createRecruitingFirm(request: Request, response: Response) {
   const parsed = createRecruitingFirmSchema.safeParse(request.body);

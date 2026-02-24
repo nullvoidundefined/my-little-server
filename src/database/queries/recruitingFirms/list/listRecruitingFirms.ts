@@ -1,6 +1,7 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import type { RecruitingFirm } from "../../../../types/recruitingFirm.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at";
 

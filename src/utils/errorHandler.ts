@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 
 // Centralized error handler to ensure all uncaught errors are logged once and surfaced with a safe JSON response.
 // The full error is only exposed in non-production environments to avoid leaking implementation details.
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+
 export function errorHandler(
   err: unknown,
   req: Request,
@@ -15,7 +15,7 @@ export function errorHandler(
 
   // Log the error; HTTP logging middleware already includes a request id, method, and URL for correlation.
   // Using console here keeps this handler decoupled from any particular logging implementation.
-  // eslint-disable-next-line no-console
+
   console.error("Unhandled error in request handler", err);
 
   res.status(status).json({

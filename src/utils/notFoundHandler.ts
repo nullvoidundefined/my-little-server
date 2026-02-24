@@ -1,4 +1,4 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 
 // Return a consistent JSON response for any unmatched route instead of the default HTML 404.
 export function notFoundHandler(req: Request, res: Response) {

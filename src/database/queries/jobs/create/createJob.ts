@@ -1,7 +1,8 @@
 import type { Request, Response } from "express";
-import db from "../../../utilities/connectionPool/connectionPool.js";
+
 import { createJobSchema } from "../../../../schemas/jobs.js";
 import type { CreateJobInput, Job } from "../../../../types/job.js";
+import db from "../../../utilities/connectionPool/connectionPool.js";
 
 async function createJob(request: Request, response: Response) {
   const parsed = createJobSchema.safeParse(request.body);

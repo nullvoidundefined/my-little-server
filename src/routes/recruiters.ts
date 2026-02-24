@@ -1,4 +1,5 @@
 import express from "express";
+
 import { createRecruiter } from "../database/queries/recruiters/create/createRecruiter.js";
 import { deleteRecruiter } from "../database/queries/recruiters/delete/deleteRecruiter.js";
 import { listRecruiters } from "../database/queries/recruiters/list/listRecruiters.js";
