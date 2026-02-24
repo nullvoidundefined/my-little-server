@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-import { updateJob } from "./updateJob.js";
+import { updateRecruiter } from "./updateRecruiter.js";
 
 vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
   default: {
@@ -15,27 +15,30 @@ vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
 
 const app = express();
 app.use(express.json());
-app.patch("/jobs/:id", updateJob);
+app.patch("/recruiters/:id", updateRecruiter);
 
 const mockQuery = vi.mocked(db.query) as ReturnType<typeof vi.fn> & {
   mockResolvedValueOnce(value: QueryResult): ReturnType<typeof vi.fn>;
 };
 
-describe("updateJob", () => {
+describe("updateRecruiter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("updates only provided fields", async () => {
     const updated = {
-      applied_date: "2025-01-01",
-      company: "Acme",
-      created_at: new Date("2025-01-01"),
       id: 1,
-      notes: null,
-      role: "Engineer",
-      status: "interviewing",
+      name: "Jane Doe",
+      email: "jane.new@example.com",
+      phone: "1234567890",
+      title: "Senior Recruiter",
+      linkedin_url: "https://linkedin.com/in/jane",
+      firm_id: 42,
+      notes: "Updated",
+      created_at: new Date("2025-01-01"),
     };
+
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -44,26 +47,29 @@ describe("updateJob", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+    const res = await request(app).patch("/recruiters/1").send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ id: 1, status: "interviewing" });
+    expect(res.body).toMatchObject({ id: 1, email: "jane.new@example.com" });
     expect(mockQuery).toHaveBeenCalledWith(
-      "UPDATE jobs SET status = $1 WHERE id = $2 RETURNING *",
-      ["interviewing", 1],
+      "UPDATE recruiters SET email = $1 WHERE id = $2 RETURNING *",
+      ["jane.new@example.com", 1],
     );
   });
 
   it("updates multiple fields when provided", async () => {
     const updated = {
-      applied_date: "2025-01-15",
-      company: "Acme",
-      created_at: new Date("2025-01-01"),
       id: 1,
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
+      name: "Jane Doe",
+      email: "jane.new@example.com",
+      phone: "1234567890",
+      title: "Lead Recruiter",
+      linkedin_url: "https://linkedin.com/in/jane",
+      firm_id: 42,
+      notes: "Updated",
+      created_at: new Date("2025-01-01"),
     };
+
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -72,26 +78,26 @@ describe("updateJob", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/1").send({
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
+    const res = await request(app).patch("/recruiters/1").send({
+      email: "jane.new@example.com",
+      name: "Jane Doe",
+      title: "Lead Recruiter",
     });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
+      email: "jane.new@example.com",
+      name: "Jane Doe",
+      title: "Lead Recruiter",
     });
     expect(mockQuery).toHaveBeenCalledWith(
-      "UPDATE jobs SET role = $1, status = $2, notes = $3 WHERE id = $4 RETURNING *",
-      ["Senior Engineer", "offered", "Call back Monday", 1],
+      "UPDATE recruiters SET email = $1, name = $2, title = $3 WHERE id = $4 RETURNING *",
+      ["jane.new@example.com", "Jane Doe", "Lead Recruiter", 1],
     );
   });
 
   it("returns 400 when no fields to update", async () => {
-    const res = await request(app).patch("/jobs/1").send({});
+    const res = await request(app).patch("/recruiters/1").send({});
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "No fields to update" });
@@ -99,22 +105,23 @@ describe("updateJob", () => {
   });
 
   it("returns 400 when id is invalid", async () => {
-    const res = await request(app).patch("/jobs/abc").send({ status: "applied" });
+    const res = await request(app).patch("/recruiters/abc").send({ email: "test@example.com" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid job ID" });
+    expect(res.body).toEqual({ error: "Invalid recruiter ID" });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
   it("returns 400 when provided field fails validation", async () => {
-    const res = await request(app).patch("/jobs/1").send({ company: "" });
+    const res = await request(app).patch("/recruiters/1").send({ email: "not-an-email" });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
+    expect(String(res.body.error)).toContain("email must be valid");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
-  it("returns 404 when job not found", async () => {
+  it("returns 404 when recruiter not found", async () => {
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -123,20 +130,25 @@ describe("updateJob", () => {
       rows: [],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/999").send({ status: "applied" });
+    const res = await request(app)
+      .patch("/recruiters/999")
+      .send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Job not found" });
+    expect(res.body).toEqual({ error: "Recruiter not found" });
   });
 
   it("returns 500 when db.query fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
-    const res = await request(app).patch("/jobs/1").send({ status: "applied" });
+    const res = await request(app)
+      .patch("/recruiters/1")
+      .send({ email: "jane.new@example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to update job" });
+    expect(res.body).toEqual({ error: "Failed to update recruiter" });
     consoleSpy.mockRestore();
   });
 });
+

@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-import { deleteJob } from "./deleteJob.js";
+import { deleteRecruiter } from "./deleteRecruiter.js";
 
 vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
   default: {
@@ -14,26 +14,26 @@ vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
 }));
 
 const app = express();
-app.delete("/jobs/:id", deleteJob);
+app.delete("/recruiters/:id", deleteRecruiter);
 
 const mockQuery = vi.mocked(db.query) as ReturnType<typeof vi.fn> & {
   mockResolvedValueOnce(value: QueryResult): ReturnType<typeof vi.fn>;
 };
 
-describe("deleteJob", () => {
+describe("deleteRecruiter", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("returns 400 when id is invalid", async () => {
-    const res = await request(app).delete("/jobs/abc");
+    const res = await request(app).delete("/recruiters/abc");
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid job ID" });
+    expect(res.body).toEqual({ error: "Invalid recruiter ID" });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
-  it("returns 204 when job is deleted", async () => {
+  it("returns 204 when recruiter is deleted", async () => {
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -42,14 +42,17 @@ describe("deleteJob", () => {
       rows: [{ id: 1 }],
     } as QueryResult);
 
-    const res = await request(app).delete("/jobs/1");
+    const res = await request(app).delete("/recruiters/1");
 
     expect(res.status).toBe(204);
     expect(res.body).toEqual({});
-    expect(mockQuery).toHaveBeenCalledWith("DELETE FROM jobs WHERE id = $1 RETURNING id", [1]);
+    expect(mockQuery).toHaveBeenCalledWith(
+      "DELETE FROM recruiters WHERE id = $1 RETURNING id",
+      [1],
+    );
   });
 
-  it("returns 404 when job not found", async () => {
+  it("returns 404 when recruiter not found", async () => {
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -58,20 +61,21 @@ describe("deleteJob", () => {
       rows: [],
     } as QueryResult);
 
-    const res = await request(app).delete("/jobs/999");
+    const res = await request(app).delete("/recruiters/999");
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Job not found" });
+    expect(res.body).toEqual({ error: "Recruiter not found" });
   });
 
   it("returns 500 when db.query fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
-    const res = await request(app).delete("/jobs/1");
+    const res = await request(app).delete("/recruiters/1");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to delete job" });
+    expect(res.body).toEqual({ error: "Failed to delete recruiter" });
     consoleSpy.mockRestore();
   });
 });
+

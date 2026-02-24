@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-import { updateJob } from "./updateJob.js";
+import { updateRecruitingFirm } from "./updateRecruitingFirm.js";
 
 vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
   default: {
@@ -15,27 +15,27 @@ vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
 
 const app = express();
 app.use(express.json());
-app.patch("/jobs/:id", updateJob);
+app.patch("/recruiting-firms/:id", updateRecruitingFirm);
 
 const mockQuery = vi.mocked(db.query) as ReturnType<typeof vi.fn> & {
   mockResolvedValueOnce(value: QueryResult): ReturnType<typeof vi.fn>;
 };
 
-describe("updateJob", () => {
+describe("updateRecruitingFirm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("updates only provided fields", async () => {
     const updated = {
-      applied_date: "2025-01-01",
-      company: "Acme",
-      created_at: new Date("2025-01-01"),
       id: 1,
-      notes: null,
-      role: "Engineer",
-      status: "interviewing",
+      name: "Acme Recruiting",
+      website: "https://acme.example.com",
+      linkedin_url: "https://linkedin.com/company/acme",
+      notes: "Updated notes",
+      created_at: new Date("2025-01-01"),
     };
+
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -44,26 +44,28 @@ describe("updateJob", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+    const res = await request(app)
+      .patch("/recruiting-firms/1")
+      .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(200);
-    expect(res.body).toMatchObject({ id: 1, status: "interviewing" });
+    expect(res.body).toMatchObject({ id: 1, website: "https://acme.example.com" });
     expect(mockQuery).toHaveBeenCalledWith(
-      "UPDATE jobs SET status = $1 WHERE id = $2 RETURNING *",
-      ["interviewing", 1],
+      "UPDATE recruiting_firms SET website = $1 WHERE id = $2 RETURNING *",
+      ["https://acme.example.com", 1],
     );
   });
 
   it("updates multiple fields when provided", async () => {
     const updated = {
-      applied_date: "2025-01-15",
-      company: "Acme",
-      created_at: new Date("2025-01-01"),
       id: 1,
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
+      name: "Acme Recruiting",
+      website: "https://acme.example.com",
+      linkedin_url: "https://linkedin.com/company/acme",
+      notes: "Updated notes",
+      created_at: new Date("2025-01-01"),
     };
+
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -72,26 +74,28 @@ describe("updateJob", () => {
       rows: [updated],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/1").send({
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
-    });
+    const res = await request(app)
+      .patch("/recruiting-firms/1")
+      .send({
+        linkedin_url: "https://linkedin.com/company/acme",
+        name: "Acme Recruiting",
+        notes: "Updated notes",
+      });
 
     expect(res.status).toBe(200);
     expect(res.body).toMatchObject({
-      notes: "Call back Monday",
-      role: "Senior Engineer",
-      status: "offered",
+      linkedin_url: "https://linkedin.com/company/acme",
+      name: "Acme Recruiting",
+      notes: "Updated notes",
     });
     expect(mockQuery).toHaveBeenCalledWith(
-      "UPDATE jobs SET role = $1, status = $2, notes = $3 WHERE id = $4 RETURNING *",
-      ["Senior Engineer", "offered", "Call back Monday", 1],
+      "UPDATE recruiting_firms SET linkedin_url = $1, name = $2, notes = $3 WHERE id = $4 RETURNING *",
+      ["https://linkedin.com/company/acme", "Acme Recruiting", "Updated notes", 1],
     );
   });
 
   it("returns 400 when no fields to update", async () => {
-    const res = await request(app).patch("/jobs/1").send({});
+    const res = await request(app).patch("/recruiting-firms/1").send({});
 
     expect(res.status).toBe(400);
     expect(res.body).toEqual({ error: "No fields to update" });
@@ -99,22 +103,27 @@ describe("updateJob", () => {
   });
 
   it("returns 400 when id is invalid", async () => {
-    const res = await request(app).patch("/jobs/abc").send({ status: "applied" });
+    const res = await request(app)
+      .patch("/recruiting-firms/abc")
+      .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(400);
-    expect(res.body).toEqual({ error: "Invalid job ID" });
+    expect(res.body).toEqual({ error: "Invalid recruiting firm ID" });
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
   it("returns 400 when provided field fails validation", async () => {
-    const res = await request(app).patch("/jobs/1").send({ company: "" });
+    const res = await request(app)
+      .patch("/recruiting-firms/1")
+      .send({ website: "not-a-url" });
 
     expect(res.status).toBe(400);
     expect(res.body.error).toBeDefined();
+    expect(String(res.body.error)).toContain("website must be a valid URL");
     expect(mockQuery).not.toHaveBeenCalled();
   });
 
-  it("returns 404 when job not found", async () => {
+  it("returns 404 when recruiting firm not found", async () => {
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -123,20 +132,25 @@ describe("updateJob", () => {
       rows: [],
     } as QueryResult);
 
-    const res = await request(app).patch("/jobs/999").send({ status: "applied" });
+    const res = await request(app)
+      .patch("/recruiting-firms/999")
+      .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(404);
-    expect(res.body).toEqual({ error: "Job not found" });
+    expect(res.body).toEqual({ error: "Recruiting firm not found" });
   });
 
   it("returns 500 when db.query fails", async () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
-    const res = await request(app).patch("/jobs/1").send({ status: "applied" });
+    const res = await request(app)
+      .patch("/recruiting-firms/1")
+      .send({ website: "https://acme.example.com" });
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to update job" });
+    expect(res.body).toEqual({ error: "Failed to update recruiting firm" });
     consoleSpy.mockRestore();
   });
 });
+

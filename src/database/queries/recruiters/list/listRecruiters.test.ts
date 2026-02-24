@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../../../utilities/connectionPool/connectionPool.js";
 
-import { listJobs } from "./listJobs.js";
+import { listRecruiters } from "./listRecruiters.js";
 
 vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
   default: {
@@ -14,29 +14,32 @@ vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
 }));
 
 const app = express();
-app.get("/jobs", listJobs);
+app.get("/recruiters", listRecruiters);
 
 const mockQuery = vi.mocked(db.query) as ReturnType<typeof vi.fn> & {
   mockResolvedValueOnce(value: QueryResult): ReturnType<typeof vi.fn>;
 };
 
-describe("listJobs", () => {
+describe("listRecruiters", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("returns all jobs ordered by id", async () => {
+  it("returns all recruiters ordered by id", async () => {
     const rows = [
       {
-        applied_date: "2025-01-01",
-        company: "Acme",
-        created_at: new Date("2025-01-01"),
         id: 1,
-        notes: null,
-        role: "Engineer",
-        status: "applied",
+        name: "Jane Doe",
+        email: "jane@example.com",
+        phone: "1234567890",
+        title: "Senior Recruiter",
+        linkedin_url: "https://linkedin.com/in/jane",
+        firm_id: 42,
+        notes: "Top recruiter",
+        created_at: new Date("2025-01-01"),
       },
     ];
+
     mockQuery.mockResolvedValueOnce({
       command: "",
       fields: [],
@@ -45,7 +48,7 @@ describe("listJobs", () => {
       rows,
     } as QueryResult);
 
-    const res = await request(app).get("/jobs");
+    const res = await request(app).get("/recruiters");
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual([
@@ -55,7 +58,7 @@ describe("listJobs", () => {
       },
     ]);
     expect(mockQuery).toHaveBeenCalledWith(
-      "SELECT id, company, role, status, applied_date, notes, created_at FROM jobs ORDER BY id",
+      "SELECT id, name, email, phone, title, linkedin_url, firm_id, notes, created_at FROM recruiters ORDER BY id",
     );
   });
 
@@ -63,10 +66,11 @@ describe("listJobs", () => {
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockQuery.mockRejectedValueOnce(new Error("DB error"));
 
-    const res = await request(app).get("/jobs");
+    const res = await request(app).get("/recruiters");
 
     expect(res.status).toBe(500);
-    expect(res.body).toEqual({ error: "Failed to fetch jobs" });
+    expect(res.body).toEqual({ error: "Failed to fetch recruiters" });
     consoleSpy.mockRestore();
   });
 });
+

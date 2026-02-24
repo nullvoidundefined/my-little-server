@@ -7,7 +7,7 @@ import db from "../../../utilities/connectionPool/connectionPool.js";
 
 import { createJob } from "./createJob.js";
 
-vi.mock("../../../../db.js", () => ({
+vi.mock("../../../utilities/connectionPool/connectionPool.js", () => ({
   default: {
     query: vi.fn(),
   },
