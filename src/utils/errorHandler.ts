@@ -1,5 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 
+import { logger } from "../config/loggerConfig.js";
+
 // Centralized error handler to ensure all uncaught errors are logged once and surfaced with a safe JSON response.
 // The full error is only exposed in non-production environments to avoid leaking implementation details.
 
@@ -13,10 +15,7 @@ export function errorHandler(
   const status = 500;
   const isProd = process.env.NODE_ENV === "production";
 
-  // Log the error; HTTP logging middleware already includes a request id, method, and URL for correlation.
-  // Using console here keeps this handler decoupled from any particular logging implementation.
-
-  console.error("Unhandled error in request handler", err);
+  logger.error({ err, reqId: req.id }, "Unhandled error in request handler");
 
   res.status(status).json({
     error: {

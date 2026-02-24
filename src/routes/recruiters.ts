@@ -1,17 +1,13 @@
 import express from "express";
 
-import { createRecruiter } from "../database/queries/recruiters/create/createRecruiter.js";
-import { deleteRecruiter } from "../database/queries/recruiters/delete/deleteRecruiter.js";
-import { getRecruiter } from "../database/queries/recruiters/get/getRecruiter.js";
-import { listRecruiters } from "../database/queries/recruiters/list/listRecruiters.js";
-import { updateRecruiter } from "../database/queries/recruiters/update/updateRecruiter.js";
+import * as recruitersHandlers from "../handlers/recruiters.js";
 
 const recruitersRouter = express.Router();
 
-recruitersRouter.get("/", listRecruiters);
-recruitersRouter.get("/:id", getRecruiter);
-recruitersRouter.post("/", createRecruiter);
-recruitersRouter.patch("/:id", updateRecruiter);
-recruitersRouter.delete("/:id", deleteRecruiter);
+recruitersRouter.get("/", recruitersHandlers.listRecruiters);
+recruitersRouter.get("/:id", recruitersHandlers.getRecruiter);
+recruitersRouter.post("/", recruitersHandlers.createRecruiter);
+recruitersRouter.patch("/:id", recruitersHandlers.updateRecruiter);
+recruitersRouter.delete("/:id", recruitersHandlers.deleteRecruiter);
 
 export { recruitersRouter };

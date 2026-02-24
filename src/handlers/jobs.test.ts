@@ -1,0 +1,205 @@
+import express from "express";
+import request from "supertest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import type { Job } from "../types/job.js";
+import * as jobsHandlers from "./jobs.js";
+import * as jobsRepo from "../repositories/jobs.js";
+
+vi.mock("../repositories/jobs.js");
+
+const app = express();
+app.use(express.json());
+app.get("/jobs", jobsHandlers.listJobs);
+app.get("/jobs/:id", jobsHandlers.getJob);
+app.post("/jobs", jobsHandlers.createJob);
+app.patch("/jobs/:id", jobsHandlers.updateJob);
+app.delete("/jobs/:id", jobsHandlers.deleteJob);
+
+describe("jobs handlers", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  describe("listJobs", () => {
+    it("returns 200 with jobs from repo", async () => {
+      const rows = [
+        {
+          id: 1,
+          company: "Acme",
+          role: "Engineer",
+          status: "applied",
+          applied_date: "2025-01-01",
+          notes: null,
+          created_at: new Date("2025-01-01"),
+          updated_at: new Date("2025-01-02"),
+        },
+      ];
+      vi.mocked(jobsRepo.listJobs).mockResolvedValueOnce(rows as unknown as Job[]);
+
+      const res = await request(app).get("/jobs");
+
+      expect(res.status).toBe(200);
+      expect(res.body).toEqual(JSON.parse(JSON.stringify(rows)));
+      expect(jobsRepo.listJobs).toHaveBeenCalledWith(50, 0);
+    });
+
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(jobsRepo.listJobs).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).get("/jobs");
+
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to fetch jobs");
+    });
+  });
+
+  describe("getJob", () => {
+    it("returns 400 for invalid id", async () => {
+      const res = await request(app).get("/jobs/abc");
+      expect(res.status).toBe(400);
+      expect(jobsRepo.getJobById).not.toHaveBeenCalled();
+    });
+
+    it("returns 200 with job when found", async () => {
+      const row = {
+        id: 1,
+        company: "Acme",
+        role: "Engineer",
+        status: "applied",
+        applied_date: "2025-01-01",
+        notes: null,
+        created_at: new Date("2025-01-01"),
+        updated_at: new Date("2025-01-02"),
+      };
+      vi.mocked(jobsRepo.getJobById).mockResolvedValueOnce(row as unknown as Job);
+
+      const res = await request(app).get("/jobs/1");
+
+      expect(res.status).toBe(200);
+      expect(res.body).toMatchObject({ id: 1, company: "Acme" });
+      expect(jobsRepo.getJobById).toHaveBeenCalledWith(1);
+    });
+
+    it("returns 404 when not found", async () => {
+      vi.mocked(jobsRepo.getJobById).mockResolvedValueOnce(null);
+
+      const res = await request(app).get("/jobs/999");
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.message).toBe("Job not found");
+    });
+  });
+
+  describe("createJob", () => {
+    it("returns 201 with created job", async () => {
+      const created = {
+        id: 1,
+        company: "Acme",
+        role: "Engineer",
+        status: "applied",
+        applied_date: "2025-01-01",
+        notes: "Great",
+        created_at: new Date("2025-01-01"),
+        updated_at: new Date("2025-01-01"),
+      };
+      vi.mocked(jobsRepo.createJob).mockResolvedValueOnce(created as unknown as Job);
+
+      const res = await request(app)
+        .post("/jobs")
+        .send({ company: "Acme", role: "Engineer", status: "applied" });
+
+      expect(res.status).toBe(201);
+      expect(res.body).toMatchObject({ company: "Acme", role: "Engineer" });
+      expect(jobsRepo.createJob).toHaveBeenCalledWith(
+        expect.objectContaining({ company: "Acme", role: "Engineer" }),
+      );
+    });
+
+    it("returns 400 when body invalid", async () => {
+      const res = await request(app).post("/jobs").send({ role: "Engineer" });
+      expect(res.status).toBe(400);
+      expect(jobsRepo.createJob).not.toHaveBeenCalled();
+    });
+
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(jobsRepo.createJob).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app)
+        .post("/jobs")
+        .send({ company: "Acme", role: "Engineer" });
+
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to create job");
+    });
+  });
+
+  describe("updateJob", () => {
+    it("returns 400 for invalid id", async () => {
+      const res = await request(app).patch("/jobs/abc").send({ status: "applied" });
+      expect(res.status).toBe(400);
+      expect(jobsRepo.updateJob).not.toHaveBeenCalled();
+    });
+
+    it("returns 200 with updated job", async () => {
+      const updated = {
+        id: 1,
+        company: "Acme",
+        role: "Engineer",
+        status: "interviewing",
+        applied_date: "2025-01-01",
+        notes: null,
+        created_at: new Date("2025-01-01"),
+        updated_at: new Date("2025-01-02"),
+      };
+      vi.mocked(jobsRepo.updateJob).mockResolvedValueOnce(updated as unknown as Job);
+
+      const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+
+      expect(res.status).toBe(200);
+      expect(res.body.status).toBe("interviewing");
+      expect(jobsRepo.updateJob).toHaveBeenCalledWith(1, { status: "interviewing" });
+    });
+
+    it("returns 404 when not found", async () => {
+      vi.mocked(jobsRepo.updateJob).mockResolvedValueOnce(null);
+
+      const res = await request(app).patch("/jobs/999").send({ status: "applied" });
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.message).toBe("Job not found");
+    });
+
+    it("returns 400 when body invalid", async () => {
+      const res = await request(app).patch("/jobs/1").send({ company: "" });
+      expect(res.status).toBe(400);
+      expect(jobsRepo.updateJob).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("deleteJob", () => {
+    it("returns 400 for invalid id", async () => {
+      const res = await request(app).delete("/jobs/abc");
+      expect(res.status).toBe(400);
+      expect(jobsRepo.deleteJob).not.toHaveBeenCalled();
+    });
+
+    it("returns 204 when deleted", async () => {
+      vi.mocked(jobsRepo.deleteJob).mockResolvedValueOnce(true);
+
+      const res = await request(app).delete("/jobs/1");
+
+      expect(res.status).toBe(204);
+      expect(jobsRepo.deleteJob).toHaveBeenCalledWith(1);
+    });
+
+    it("returns 404 when not found", async () => {
+      vi.mocked(jobsRepo.deleteJob).mockResolvedValueOnce(false);
+
+      const res = await request(app).delete("/jobs/999");
+
+      expect(res.status).toBe(404);
+      expect(res.body.error.message).toBe("Job not found");
+    });
+  });
+});

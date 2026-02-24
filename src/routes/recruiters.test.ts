@@ -4,28 +4,22 @@ import { describe, expect, it, vi } from "vitest";
 
 import { recruitersRouter } from "./recruiters.js";
 
-vi.mock("../database/queries/recruiters/list/listRecruiters.js", () => ({
-  listRecruiters: vi.fn((_req, res) => res.status(200).json({ route: "listRecruiters" })),
-}));
-
-vi.mock("../database/queries/recruiters/create/createRecruiter.js", () => ({
-  createRecruiter: vi.fn((_req, res) => res.status(201).json({ route: "createRecruiter" })),
-}));
-
-vi.mock("../database/queries/recruiters/update/updateRecruiter.js", () => ({
-  updateRecruiter: vi.fn((req, res) =>
-    res.status(200).json({ route: "updateRecruiter", id: req.params.id }),
+vi.mock("../handlers/recruiters.js", () => ({
+  listRecruiters: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(200).json({ route: "listRecruiters" }),
   ),
-}));
-
-vi.mock("../database/queries/recruiters/get/getRecruiter.js", () => ({
-  getRecruiter: vi.fn((req, res) =>
+  getRecruiter: vi.fn((req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "getRecruiter", id: req.params.id }),
   ),
-}));
-
-vi.mock("../database/queries/recruiters/delete/deleteRecruiter.js", () => ({
-  deleteRecruiter: vi.fn((_req, res) => res.status(204).send()),
+  createRecruiter: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(201).json({ route: "createRecruiter" }),
+  ),
+  updateRecruiter: vi.fn((req: express.Request, res: express.Response) =>
+    res.status(200).json({ route: "updateRecruiter", id: req.params.id }),
+  ),
+  deleteRecruiter: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(204).send(),
+  ),
 }));
 
 const app = express();
@@ -55,7 +49,9 @@ describe("recruitersRouter", () => {
   });
 
   it("routes PATCH /recruiters/:id to updateRecruiter", async () => {
-    const res = await request(app).patch("/recruiters/123").send({ any: "payload" });
+    const res = await request(app)
+      .patch("/recruiters/123")
+      .send({ any: "payload" });
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "updateRecruiter", id: "123" });

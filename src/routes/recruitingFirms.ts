@@ -1,17 +1,13 @@
 import express from "express";
 
-import { createRecruitingFirm } from "../database/queries/recruitingFirms/create/createRecruitingFirm.js";
-import { deleteRecruitingFirm } from "../database/queries/recruitingFirms/delete/deleteRecruitingFirm.js";
-import { getRecruitingFirm } from "../database/queries/recruitingFirms/get/getRecruitingFirm.js";
-import { listRecruitingFirms } from "../database/queries/recruitingFirms/list/listRecruitingFirms.js";
-import { updateRecruitingFirm } from "../database/queries/recruitingFirms/update/updateRecruitingFirm.js";
+import * as recruitingFirmsHandlers from "../handlers/recruitingFirms.js";
 
 const recruitingFirmsRouter = express.Router();
 
-recruitingFirmsRouter.get("/", listRecruitingFirms);
-recruitingFirmsRouter.get("/:id", getRecruitingFirm);
-recruitingFirmsRouter.post("/", createRecruitingFirm);
-recruitingFirmsRouter.patch("/:id", updateRecruitingFirm);
-recruitingFirmsRouter.delete("/:id", deleteRecruitingFirm);
+recruitingFirmsRouter.get("/", recruitingFirmsHandlers.listRecruitingFirms);
+recruitingFirmsRouter.get("/:id", recruitingFirmsHandlers.getRecruitingFirm);
+recruitingFirmsRouter.post("/", recruitingFirmsHandlers.createRecruitingFirm);
+recruitingFirmsRouter.patch("/:id", recruitingFirmsHandlers.updateRecruitingFirm);
+recruitingFirmsRouter.delete("/:id", recruitingFirmsHandlers.deleteRecruitingFirm);
 
 export { recruitingFirmsRouter };

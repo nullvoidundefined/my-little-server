@@ -4,24 +4,22 @@ import { describe, expect, it, vi } from "vitest";
 
 import { jobsRouter } from "./jobs.js";
 
-vi.mock("../database/queries/jobs/list/listJobs.js", () => ({
-  listJobs: vi.fn((_req, res) => res.status(200).json({ route: "listJobs" })),
-}));
-
-vi.mock("../database/queries/jobs/create/createJob.js", () => ({
-  createJob: vi.fn((_req, res) => res.status(201).json({ route: "createJob" })),
-}));
-
-vi.mock("../database/queries/jobs/update/updateJob.js", () => ({
-  updateJob: vi.fn((req, res) => res.status(200).json({ route: "updateJob", id: req.params.id })),
-}));
-
-vi.mock("../database/queries/jobs/get/getJob.js", () => ({
-  getJob: vi.fn((req, res) => res.status(200).json({ route: "getJob", id: req.params.id })),
-}));
-
-vi.mock("../database/queries/jobs/delete/deleteJob.js", () => ({
-  deleteJob: vi.fn((_req, res) => res.status(204).send()),
+vi.mock("../handlers/jobs.js", () => ({
+  listJobs: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(200).json({ route: "listJobs" }),
+  ),
+  getJob: vi.fn((req: express.Request, res: express.Response) =>
+    res.status(200).json({ route: "getJob", id: req.params.id }),
+  ),
+  createJob: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(201).json({ route: "createJob" }),
+  ),
+  updateJob: vi.fn((req: express.Request, res: express.Response) =>
+    res.status(200).json({ route: "updateJob", id: req.params.id }),
+  ),
+  deleteJob: vi.fn((_req: express.Request, res: express.Response) =>
+    res.status(204).send(),
+  ),
 }));
 
 const app = express();
