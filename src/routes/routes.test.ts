@@ -28,8 +28,10 @@ vi.mock("app/handlers/jobs/jobs.js", () => ({
 vi.mock("app/handlers/recruiters/recruiters.js", () => ({
   listRecruiters: (_: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
   getRecruiter: (_: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
-  createRecruiter: (_: express.Request, res: express.Response) => res.status(201).json({ ok: true }),
-  updateRecruiter: (_: express.Request, res: express.Response) => res.status(200).json({ ok: true }),
+  createRecruiter: (_: express.Request, res: express.Response) =>
+    res.status(201).json({ ok: true }),
+  updateRecruiter: (_: express.Request, res: express.Response) =>
+    res.status(200).json({ ok: true }),
   deleteRecruiter: (_: express.Request, res: express.Response) => res.status(204).send(),
 }));
 vi.mock("app/handlers/recruitingFirms/recruitingFirms.js", () => ({
@@ -41,8 +43,7 @@ vi.mock("app/handlers/recruitingFirms/recruitingFirms.js", () => ({
     res.status(201).json({ ok: true }),
   updateRecruitingFirm: (_: express.Request, res: express.Response) =>
     res.status(200).json({ ok: true }),
-  deleteRecruitingFirm: (_: express.Request, res: express.Response) =>
-    res.status(204).send(),
+  deleteRecruitingFirm: (_: express.Request, res: express.Response) => res.status(204).send(),
 }));
 vi.mock("app/utils/rateLimiter.js", () => ({
   authRateLimiter: (_: express.Request, __: express.Response, next: express.NextFunction) => next(),
@@ -59,7 +60,9 @@ app.use("/recruiting-firms", recruitingFirmsRouter);
 describe("route wiring", () => {
   describe("auth", () => {
     it("POST /auth/register → 201", async () => {
-      const res = await request(app).post("/auth/register").send({ email: "a@b.com", password: "x" });
+      const res = await request(app)
+        .post("/auth/register")
+        .send({ email: "a@b.com", password: "x" });
       expect(res.status).toBe(201);
     });
     it("POST /auth/login → 200", async () => {
@@ -132,15 +135,11 @@ describe("route wiring", () => {
       expect(res.status).toBe(200);
     });
     it("POST /recruiting-firms → 201", async () => {
-      const res = await request(app)
-        .post("/recruiting-firms")
-        .send({ name: "Firm" });
+      const res = await request(app).post("/recruiting-firms").send({ name: "Firm" });
       expect(res.status).toBe(201);
     });
     it("PATCH /recruiting-firms/:id → 200", async () => {
-      const res = await request(app)
-        .patch(`/recruiting-firms/${id}`)
-        .send({ name: "F" });
+      const res = await request(app).patch(`/recruiting-firms/${id}`).send({ name: "F" });
       expect(res.status).toBe(200);
     });
     it("DELETE /recruiting-firms/:id → 204", async () => {

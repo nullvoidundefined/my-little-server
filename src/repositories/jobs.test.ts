@@ -36,10 +36,13 @@ describe("jobs repository", () => {
     });
 
     expect(result).toEqual(row);
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining("INSERT INTO jobs"),
-      ["Acme", "Engineer", "applied", "2025-01-01", null],
-    );
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO jobs"), [
+      "Acme",
+      "Engineer",
+      "applied",
+      "2025-01-01",
+      null,
+    ]);
   });
 
   it("createJob throws when insert returns no row", async () => {
