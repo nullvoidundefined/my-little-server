@@ -13,7 +13,7 @@ export function csrfGuard(req: Request, res: Response, next: NextFunction): void
     return;
   }
   const value = req.get("X-Requested-With");
-  if (!value || typeof value !== "string") {
+  if (!value) {
     res.status(403).json({ error: { message: "Missing X-Requested-With header" } });
     return;
   }
