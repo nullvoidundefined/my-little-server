@@ -4,7 +4,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
-import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
+import { loadSession, requireAuth } from "app/middleware/requireAuth/requireAuth.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
 

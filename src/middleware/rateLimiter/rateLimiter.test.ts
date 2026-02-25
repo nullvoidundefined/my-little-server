@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import { authRateLimiter, rateLimiter } from "app/middleware/rateLimiter.js";
+import { authRateLimiter, rateLimiter } from "app/middleware/rateLimiter/rateLimiter.js";
 
 function buildApp(limiter: ReturnType<typeof import("express-rate-limit").default>) {
   const app = express();

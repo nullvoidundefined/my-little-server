@@ -3,8 +3,8 @@ import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 
 import { SESSION_TTL_MS } from "app/constants/session.js";
-import { query, withTransaction } from "app/db/pool.js";
-import type { PoolClient } from "app/db/pool.js";
+import { query, withTransaction } from "app/db/pool/pool.js";
+import type { PoolClient } from "app/db/pool/pool.js";
 import type { User } from "app/schemas/auth.js";
 
 const SALT_ROUNDS = 10;

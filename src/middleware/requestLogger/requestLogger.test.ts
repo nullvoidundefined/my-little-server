@@ -7,7 +7,7 @@ vi.mock("app/utils/logs/logger.js", () => ({
   logger: pino({ level: "silent" }),
 }));
 
-import { requestLogger } from "app/middleware/requestLogger.js";
+import { requestLogger } from "app/middleware/requestLogger/requestLogger.js";
 
 const app = express();
 app.use(requestLogger);

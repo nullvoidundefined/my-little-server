@@ -2,14 +2,14 @@ import crypto from "node:crypto";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { query } from "app/db/pool.js";
+import { query } from "app/db/pool/pool.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import { mockResult } from "app/utils/tests/mockResult.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
 const mockClient = {};
 
-vi.mock("app/db/pool.js", () => {
+vi.mock("app/db/pool/pool.js", () => {
   const queryFn = vi.fn();
   return {
     query: queryFn,

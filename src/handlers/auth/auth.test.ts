@@ -5,8 +5,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
 import * as authHandlers from "app/handlers/auth/auth.js";
-import { errorHandler } from "app/middleware/errorHandler.js";
-import { requireAuth } from "app/middleware/requireAuth.js";
+import { errorHandler } from "app/middleware/errorHandler/errorHandler.js";
+import { requireAuth } from "app/middleware/requireAuth/requireAuth.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import type { User } from "app/schemas/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
