@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { query } from "app/db/pool.js";
 import * as authRepo from "app/repositories/auth/auth.js";
+import { mockResult } from "app/utils/tests/mockResult.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
 const mockClient = {};
@@ -41,7 +42,7 @@ describe("auth repository", () => {
       created_at: new Date(),
       updated_at: new Date(),
     };
-    mockQuery.mockResolvedValueOnce({ rows: [row], rowCount: 1 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([row]));
 
     const result = await authRepo.createUser("u@example.com", "password123");
 
@@ -54,7 +55,7 @@ describe("auth repository", () => {
   });
 
   it("createUser throws when insert returns no row", async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([], 0));
     await expect(authRepo.createUser("u@example.com", "pwd")).rejects.toThrow(
       "Insert returned no row",
     );
@@ -68,7 +69,7 @@ describe("auth repository", () => {
       created_at: new Date(),
       updated_at: null,
     };
-    mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([row]));
 
     const result = await authRepo.findUserByEmail("u@example.com");
 
@@ -77,7 +78,7 @@ describe("auth repository", () => {
   });
 
   it("findUserByEmail returns null when not found", async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([]));
     const result = await authRepo.findUserByEmail("nobody@example.com");
     expect(result).toBeNull();
   });
@@ -89,13 +90,13 @@ describe("auth repository", () => {
       created_at: new Date(),
       updated_at: null,
     };
-    mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([row]));
     const result = await authRepo.findUserById(id);
     expect(result).toEqual(row);
   });
 
   it("findUserById returns null when not found", async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([]));
     const result = await authRepo.findUserById(id);
     expect(result).toBeNull();
   });
@@ -111,7 +112,7 @@ describe("auth repository", () => {
   });
 
   it("createSession inserts hash of token and returns raw token", async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([], 1));
     const result = await authRepo.createSession(id);
     expect(typeof result).toBe("string");
     expect(result).toHaveLength(64);
@@ -130,7 +131,7 @@ describe("auth repository", () => {
       created_at: new Date(),
       updated_at: null,
     };
-    mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([row]));
     const result = await authRepo.getSessionWithUser("session-id");
     expect(result).toEqual(row);
     const expectedHash = crypto.createHash("sha256").update("session-id", "utf8").digest("hex");
@@ -138,13 +139,13 @@ describe("auth repository", () => {
   });
 
   it("getSessionWithUser returns null when no row", async () => {
-    mockQuery.mockResolvedValueOnce({ rows: [] } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([]));
     const result = await authRepo.getSessionWithUser("bad");
     expect(result).toBeNull();
   });
 
   it("deleteSession returns true when deleted", async () => {
-    mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([], 1));
     const result = await authRepo.deleteSession("sid");
     expect(result).toBe(true);
     const expectedHash = crypto.createHash("sha256").update("sid", "utf8").digest("hex");
@@ -154,13 +155,13 @@ describe("auth repository", () => {
   });
 
   it("deleteSession returns false when not found", async () => {
-    mockQuery.mockResolvedValueOnce({ rowCount: 0 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([], 0));
     const result = await authRepo.deleteSession("sid");
     expect(result).toBe(false);
   });
 
   it("deleteSessionsForUser runs delete query", async () => {
-    mockQuery.mockResolvedValueOnce({ rowCount: 2 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([], 2));
     await authRepo.deleteSessionsForUser(id);
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("DELETE FROM sessions"), [id]);
   });
@@ -172,9 +173,7 @@ describe("auth repository", () => {
       created_at: new Date(),
       updated_at: null,
     };
-    mockQuery
-      .mockResolvedValueOnce({ rows: [userRow], rowCount: 1 } as never)
-      .mockResolvedValueOnce({ rows: [], rowCount: 1 } as never);
+    mockQuery.mockResolvedValueOnce(mockResult([userRow])).mockResolvedValueOnce(mockResult([], 1));
     const result = await authRepo.createUserAndSession("u@example.com", "pwd");
     expect(result.user).toEqual(userRow);
     expect(typeof result.sessionId).toBe("string");
