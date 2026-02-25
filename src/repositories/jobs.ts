@@ -25,7 +25,7 @@ export async function getJobsTotalCount(): Promise<number> {
 
 export async function listJobs(limit: number, offset: number): Promise<Job[]> {
   const result = await db.query<Job>(
-    `SELECT ${JOB_COLUMNS} FROM jobs ORDER BY id LIMIT $1 OFFSET $2`,
+    `SELECT ${JOB_COLUMNS} FROM jobs ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
   return result.rows;
