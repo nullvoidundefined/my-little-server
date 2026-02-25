@@ -54,7 +54,7 @@ export async function updateRecruiter(
   data: Partial<CreateRecruiterInput>,
 ): Promise<Recruiter | null> {
   const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>);
-  if (values.length === 0) return null;
+  if (values.length === 0) throw new Error("At least one field required for update");
   values.push(id);
   const result = await db.query<Recruiter>(
     `UPDATE recruiters SET ${setClause} WHERE id = $${values.length} RETURNING ${RECRUITER_COLUMNS}`,
