@@ -6,6 +6,15 @@ info:
 http:
   method: POST
   url: "{{baseUrl}}/recruiting-firms"
+  body:
+    type: json
+    data: |-
+      {
+        "name": "Tech Talent Partners",
+        "website": "https://www.techtalentpartners.example",
+        "linkedin_url": "https://www.linkedin.com/company/techtalentpartners",
+        "notes": "Boutique agency focused on senior engineering roles."
+      }
   auth: inherit
 
 settings:

@@ -1,10 +1,13 @@
 import "dotenv/config";
-import cors from "cors";
+import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 
+import { corsConfig } from "./config/corsConfig.js";
 import { httpLogger, logger } from "./config/loggerConfig.js";
 import db from "./database/utilities/connectionPool/connectionPool.js";
+import { loadSession, requireAuth } from "./middleware/requireAuth.js";
+import { authRouter } from "./routes/auth.js";
 import { jobsRouter } from "./routes/jobs.js";
 import { recruitersRouter } from "./routes/recruiters.js";
 import { recruitingFirmsRouter } from "./routes/recruitingFirms.js";
@@ -19,12 +22,7 @@ const REQUEST_TIMEOUT_MS = 30_000;
 app.use(helmet());
 
 // Allow browser frontends to call this API while still controlling which origins are permitted.
-app.use(
-  cors({
-    credentials: true,
-    origin: process.env.CORS_ORIGIN ?? "http://localhost:5173",
-  }),
-);
+app.use(corsConfig);
 
 // Attach structured request/response logging (with request IDs) early so all downstream handlers are observable.
 app.use(httpLogger);
@@ -37,6 +35,11 @@ app.use(express.json({ limit: "10kb" }));
 
 // Parse URL-encoded form submissions (e.g. HTML forms) with the same size cap as JSON.
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
+
+app.use(cookieParser());
+
+// Load session from cookie and set req.user when valid (does not block unauthenticated requests).
+app.use(loadSession);
 
 // Timeout long-running requests so hung connections don't stay open indefinitely.
 app.use((_req, res, next) => {
@@ -61,9 +64,11 @@ app.get("/health", async (_req, res) => {
   }
 });
 
-app.use("/jobs", jobsRouter);
-app.use("/recruiters", recruitersRouter);
-app.use("/recruiting-firms", recruitingFirmsRouter);
+app.use("/auth", authRouter);
+
+app.use("/jobs", requireAuth, jobsRouter);
+app.use("/recruiters", requireAuth, recruitersRouter);
+app.use("/recruiting-firms", requireAuth, recruitingFirmsRouter);
 
 // Attach reusable utilities for 404 and error handling.
 app.use(notFoundHandler);
