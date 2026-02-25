@@ -31,6 +31,11 @@ export async function register(req: Request, res: Response): Promise<void> {
     res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
     res.status(201).json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
   } catch (err) {
+    const code = err && typeof err === "object" && "code" in err ? (err as { code: string }).code : undefined;
+    if (code === "23505") {
+      res.status(409).json({ error: { message: "Email already registered" } });
+      return;
+    }
     logger.error({ err }, "Failed to register");
     res.status(500).json({ error: { message: "Registration failed" } });
   }
