@@ -171,6 +171,13 @@ describe("auth handlers", () => {
       expect(res.status).toBe(204);
       expect(authRepo.deleteSession).toHaveBeenCalledWith("abc123");
     });
+    it("returns 204 even when deleteSession throws", async () => {
+      vi.mocked(authRepo.deleteSession).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).post("/logout").set("Cookie", `${SESSION_COOKIE_NAME}=abc123`);
+
+      expect(res.status).toBe(204);
+    });
   });
 
   describe("me", () => {

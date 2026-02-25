@@ -158,6 +158,12 @@ describe("recruiters handlers", () => {
       const res = await request(app).patch(`/recruiters/${id}`).send({ name: "Jane Doe" });
       expect(res.status).toBe(200);
     });
+    it("returns 400 when body invalid", async () => {
+      const res = await request(app).patch(`/recruiters/${id}`).send({ name: "" });
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toBeDefined();
+      expect(recruitersRepo.updateRecruiter).not.toHaveBeenCalled();
+    });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(null);
       const res = await request(app).patch(`/recruiters/${id}`).send({ name: "X" });

@@ -149,6 +149,12 @@ describe("recruitingFirms handlers", () => {
         .send({ name: "Acme Recruiting" });
       expect(res.status).toBe(200);
     });
+    it("returns 400 when body invalid", async () => {
+      const res = await request(app).patch(`/recruiting-firms/${id}`).send({ name: "" });
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toBeDefined();
+      expect(recruitingFirmsRepo.updateRecruitingFirm).not.toHaveBeenCalled();
+    });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(null);
       const res = await request(app).patch(`/recruiting-firms/${id}`).send({ name: "X" });
