@@ -1,4 +1,7 @@
 import "dotenv/config";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
 import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
@@ -26,7 +29,6 @@ function validateEnv(): void {
     process.exit(1);
   }
 }
-validateEnv();
 
 const app = express();
 const REQUEST_TIMEOUT_MS = 30_000;
@@ -92,15 +94,23 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT ?? 3000;
 
-const server = app.listen(PORT, () => logger.info({ port: PORT }, "Server running"));
+const entryPath = process.argv[1];
+const isEntryModule =
+  entryPath !== undefined &&
+  path.resolve(entryPath) === path.resolve(fileURLToPath(import.meta.url));
 
-async function shutdown(signal: string) {
-  logger.info({ signal }, "Shutting down gracefully");
-  await new Promise<void>((resolve) => server.close(() => resolve()));
-  logger.info("HTTP server closed");
-  await db.end();
-  process.exit(0);
+if (isEntryModule) {
+  validateEnv();
+  const server = app.listen(PORT, () => logger.info({ port: PORT }, "Server running"));
+
+  async function shutdown(signal: string) {
+    logger.info({ signal }, "Shutting down gracefully");
+    await new Promise<void>((resolve) => server.close(() => resolve()));
+    logger.info("HTTP server closed");
+    await db.end();
+    process.exit(0);
+  }
+
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
+  process.on("SIGINT", () => shutdown("SIGINT"));
 }
-
-process.on("SIGTERM", () => shutdown("SIGTERM"));
-process.on("SIGINT", () => shutdown("SIGINT"));
