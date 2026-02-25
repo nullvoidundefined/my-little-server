@@ -17,7 +17,7 @@ const PATCH_FIELDS = [
 export async function createRecruiter(data: CreateRecruiterInput): Promise<Recruiter> {
   const { name, email, phone, title, linkedin_url, firm_id, notes } = data;
   const result = await db.query<Recruiter>(
-    "INSERT INTO recruiters (name, email, phone, title, linkedin_url, firm_id, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+    `INSERT INTO recruiters (name, email, phone, title, linkedin_url, firm_id, notes) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${RECRUITER_COLUMNS}`,
     [
       name,
       email ?? null,
@@ -57,7 +57,7 @@ export async function updateRecruiter(
   if (values.length === 0) return null;
   values.push(id);
   const result = await db.query<Recruiter>(
-    `UPDATE recruiters SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+    `UPDATE recruiters SET ${setClause} WHERE id = $${values.length} RETURNING ${RECRUITER_COLUMNS}`,
     values,
   );
   return result.rows[0] ?? null;

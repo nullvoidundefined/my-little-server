@@ -9,7 +9,7 @@ const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as c
 export async function createJob(data: CreateJobInput): Promise<Job> {
   const { company, role, status, applied_date, notes } = data;
   const result = await db.query<Job>(
-    "INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+    `INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING ${JOB_COLUMNS}`,
     [company, role, status ?? null, applied_date ?? null, notes ?? null],
   );
   const row = result.rows[0];
@@ -41,7 +41,7 @@ export async function updateJob(
   if (values.length === 0) return null;
   values.push(id);
   const result = await db.query<Job>(
-    `UPDATE jobs SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+    `UPDATE jobs SET ${setClause} WHERE id = $${values.length} RETURNING ${JOB_COLUMNS}`,
     values,
   );
   return result.rows[0] ?? null;

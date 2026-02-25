@@ -13,7 +13,7 @@ export async function createRecruitingFirm(
 ): Promise<RecruitingFirm> {
   const { name, website, linkedin_url, notes } = data;
   const result = await db.query<RecruitingFirm>(
-    "INSERT INTO recruiting_firms (name, website, linkedin_url, notes) VALUES ($1, $2, $3, $4) RETURNING *",
+    `INSERT INTO recruiting_firms (name, website, linkedin_url, notes) VALUES ($1, $2, $3, $4) RETURNING ${RECRUITING_FIRM_COLUMNS}`,
     [name, website ?? null, linkedin_url ?? null, notes ?? null],
   );
   const row = result.rows[0];
@@ -50,7 +50,7 @@ export async function updateRecruitingFirm(
   if (values.length === 0) return null;
   values.push(id);
   const result = await db.query<RecruitingFirm>(
-    `UPDATE recruiting_firms SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+    `UPDATE recruiting_firms SET ${setClause} WHERE id = $${values.length} RETURNING ${RECRUITING_FIRM_COLUMNS}`,
     values,
   );
   return result.rows[0] ?? null;
