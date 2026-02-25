@@ -40,11 +40,15 @@ describe("recruiters handlers", () => {
       vi.mocked(recruitersRepo.listRecruiters).mockResolvedValueOnce(
         rows as unknown as Recruiter[],
       );
+      vi.mocked(recruitersRepo.getRecruitersTotalCount).mockResolvedValueOnce(1);
 
       const res = await request(app).get("/recruiters");
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(JSON.parse(JSON.stringify(rows)));
+      expect(res.body).toEqual({
+        data: JSON.parse(JSON.stringify(rows)),
+        meta: { total: 1, limit: 50, offset: 0 },
+      });
     });
 
     it("returns 500 when repo throws", async () => {

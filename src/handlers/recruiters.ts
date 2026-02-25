@@ -9,8 +9,11 @@ import { parsePagination } from "../utils/parsePagination.js";
 export async function listRecruiters(req: Request, res: Response): Promise<void> {
   try {
     const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
-    const rows = await recruitersRepo.listRecruiters(limit, offset);
-    res.json(rows);
+    const [rows, total] = await Promise.all([
+      recruitersRepo.listRecruiters(limit, offset),
+      recruitersRepo.getRecruitersTotalCount(),
+    ]);
+    res.json({ data: rows, meta: { total, limit, offset } });
   } catch (err) {
     logger.error({ err }, "Failed to fetch recruiters");
     res.status(500).json({ error: { message: "Failed to fetch recruiters" } });

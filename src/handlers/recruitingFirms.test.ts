@@ -37,9 +37,13 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.listRecruitingFirms).mockResolvedValueOnce(
         rows as unknown as RecruitingFirm[],
       );
+      vi.mocked(recruitingFirmsRepo.getRecruitingFirmsTotalCount).mockResolvedValueOnce(1);
       const res = await request(app).get("/recruiting-firms");
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(JSON.parse(JSON.stringify(rows)));
+      expect(res.body).toEqual({
+        data: JSON.parse(JSON.stringify(rows)),
+        meta: { total: 1, limit: 50, offset: 0 },
+      });
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.listRecruitingFirms).mockRejectedValueOnce(

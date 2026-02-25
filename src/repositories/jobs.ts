@@ -17,6 +17,11 @@ export async function createJob(data: CreateJobInput): Promise<Job> {
   return row;
 }
 
+export async function getJobsTotalCount(): Promise<number> {
+  const result = await db.query<{ count: string }>("SELECT COUNT(*)::int AS count FROM jobs");
+  return Number(result.rows[0]?.count ?? 0);
+}
+
 export async function listJobs(limit: number, offset: number): Promise<Job[]> {
   const result = await db.query<Job>(
     `SELECT ${JOB_COLUMNS} FROM jobs ORDER BY id LIMIT $1 OFFSET $2`,

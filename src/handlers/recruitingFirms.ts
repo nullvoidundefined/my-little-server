@@ -12,8 +12,11 @@ import { parsePagination } from "../utils/parsePagination.js";
 export async function listRecruitingFirms(req: Request, res: Response): Promise<void> {
   try {
     const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
-    const rows = await recruitingFirmsRepo.listRecruitingFirms(limit, offset);
-    res.json(rows);
+    const [rows, total] = await Promise.all([
+      recruitingFirmsRepo.listRecruitingFirms(limit, offset),
+      recruitingFirmsRepo.getRecruitingFirmsTotalCount(),
+    ]);
+    res.json({ data: rows, meta: { total, limit, offset } });
   } catch (err) {
     logger.error({ err }, "Failed to fetch recruiting firms");
     res.status(500).json({ error: { message: "Failed to fetch recruiting firms" } });

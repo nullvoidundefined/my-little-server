@@ -44,7 +44,7 @@ Base URL: `http://localhost:3000` (or your `PORT`).
 
 | Method   | Path        | Description        |
 | -------- | ----------- | ------------------- |
-| `GET`    | `/jobs`     | List jobs (query: `limit`, `offset`) |
+| `GET`    | `/jobs`     | List jobs (query: `limit`, `offset`); returns `{ data: Job[], meta: { total, limit, offset } }` |
 | `GET`    | `/jobs/:id` | Get one job         |
 | `POST`   | `/jobs`     | Create job (body: `company`, `role`, optional `status`, `applied_date`, `notes`) |
 | `PATCH`  | `/jobs/:id` | Update job (partial body) |
@@ -54,7 +54,7 @@ Base URL: `http://localhost:3000` (or your `PORT`).
 
 | Method   | Path               | Description        |
 | -------- | ------------------ | ------------------- |
-| `GET`    | `/recruiters`      | List recruiters     |
+| `GET`    | `/recruiters`      | List recruiters; returns `{ data, meta: { total, limit, offset } }` |
 | `GET`    | `/recruiters/:id`  | Get one recruiter   |
 | `POST`   | `/recruiters`      | Create recruiter   |
 | `PATCH`  | `/recruiters/:id`  | Update recruiter   |
@@ -64,7 +64,7 @@ Base URL: `http://localhost:3000` (or your `PORT`).
 
 | Method   | Path                      | Description        |
 | -------- | ------------------------- | ------------------- |
-| `GET`    | `/recruiting-firms`       | List firms          |
+| `GET`    | `/recruiting-firms`       | List firms; returns `{ data, meta: { total, limit, offset } }` |
 | `GET`    | `/recruiting-firms/:id`   | Get one firm        |
 | `POST`   | `/recruiting-firms`       | Create firm         |
 | `PATCH`  | `/recruiting-firms/:id`   | Update firm         |

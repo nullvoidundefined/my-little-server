@@ -21,6 +21,13 @@ export async function createRecruitingFirm(
   return row;
 }
 
+export async function getRecruitingFirmsTotalCount(): Promise<number> {
+  const result = await db.query<{ count: string }>(
+    "SELECT COUNT(*)::int AS count FROM recruiting_firms",
+  );
+  return Number(result.rows[0]?.count ?? 0);
+}
+
 export async function listRecruitingFirms(
   limit: number,
   offset: number,

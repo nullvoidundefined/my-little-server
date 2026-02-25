@@ -33,6 +33,11 @@ export async function createRecruiter(data: CreateRecruiterInput): Promise<Recru
   return row;
 }
 
+export async function getRecruitersTotalCount(): Promise<number> {
+  const result = await db.query<{ count: string }>("SELECT COUNT(*)::int AS count FROM recruiters");
+  return Number(result.rows[0]?.count ?? 0);
+}
+
 export async function listRecruiters(limit: number, offset: number): Promise<Recruiter[]> {
   const result = await db.query<Recruiter>(
     `SELECT ${RECRUITER_COLUMNS} FROM recruiters ORDER BY id LIMIT $1 OFFSET $2`,

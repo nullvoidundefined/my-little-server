@@ -42,6 +42,13 @@ describe("jobs repository", () => {
     );
   });
 
+  it("getJobsTotalCount returns count", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [{ count: "42" }] } as never);
+    const result = await jobsRepo.getJobsTotalCount();
+    expect(result).toBe(42);
+    expect(mockQuery).toHaveBeenCalledWith("SELECT COUNT(*)::int AS count FROM jobs");
+  });
+
   it("listJobs returns rows", async () => {
     const rows = [
       {

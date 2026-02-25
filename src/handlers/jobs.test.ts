@@ -36,11 +36,15 @@ describe("jobs handlers", () => {
         },
       ];
       vi.mocked(jobsRepo.listJobs).mockResolvedValueOnce(rows as unknown as Job[]);
+      vi.mocked(jobsRepo.getJobsTotalCount).mockResolvedValueOnce(1);
 
       const res = await request(app).get("/jobs");
 
       expect(res.status).toBe(200);
-      expect(res.body).toEqual(JSON.parse(JSON.stringify(rows)));
+      expect(res.body).toEqual({
+        data: JSON.parse(JSON.stringify(rows)),
+        meta: { total: 1, limit: 50, offset: 0 },
+      });
       expect(jobsRepo.listJobs).toHaveBeenCalledWith(50, 0);
     });
 
