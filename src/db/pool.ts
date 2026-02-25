@@ -20,9 +20,7 @@ const pool = new Pool({
  * Runs a callback inside a database transaction. On success commits; on error rolls back and rethrows.
  * Use this when multiple operations must succeed or fail together (e.g. register = createUser + createSession).
  */
-export async function withTransaction<T>(
-  fn: (client: PoolClient) => Promise<T>,
-): Promise<T> {
+export async function withTransaction<T>(fn: (client: PoolClient) => Promise<T>): Promise<T> {
   const client = await pool.connect();
   try {
     await client.query("BEGIN");

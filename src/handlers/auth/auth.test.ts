@@ -78,10 +78,7 @@ describe("auth handlers", () => {
         created_at: "2025-01-01T00:00:00.000Z",
       });
       expect(res.headers["set-cookie"]).toBeDefined();
-      expect(authRepo.createUserAndSession).toHaveBeenCalledWith(
-        "user@example.com",
-        "password123",
-      );
+      expect(authRepo.createUserAndSession).toHaveBeenCalledWith("user@example.com", "password123");
     });
     it("returns 409 on unique violation (23505)", async () => {
       const err = Object.assign(new Error("duplicate key"), { code: "23505" });

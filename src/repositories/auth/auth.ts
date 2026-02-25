@@ -56,10 +56,7 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
   return bcrypt.compare(plain, hash);
 }
 
-export async function createSession(
-  userId: string,
-  client?: PoolClient,
-): Promise<string> {
+export async function createSession(userId: string, client?: PoolClient): Promise<string> {
   const token = crypto.randomBytes(32).toString("hex");
   const idHash = hashSessionToken(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
