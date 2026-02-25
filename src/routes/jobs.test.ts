@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { jobsRouter } from "./jobs.js";
 
-vi.mock("../handlers/jobs.js", () => ({
+vi.mock("../handlers/jobs/jobs.js", () => ({
   listJobs: vi.fn((_req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "listJobs" }),
   ),

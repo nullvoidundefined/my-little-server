@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { recruitersRouter } from "./recruiters.js";
 
-vi.mock("../handlers/recruiters.js", () => ({
+vi.mock("../handlers/recruiters/recruiters.js", () => ({
   listRecruiters: vi.fn((_req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "listRecruiters" }),
   ),
