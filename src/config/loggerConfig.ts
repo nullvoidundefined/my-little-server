@@ -28,8 +28,8 @@ export const httpLogger = pinoHttp({
   genReqId(req, res) {
     const header = req.headers["x-request-id"];
     const fromHeader = Array.isArray(header) ? header[0] : header;
-
-    const id = fromHeader || randomUUID();
+    const raw = fromHeader || randomUUID();
+    const id = typeof raw === "string" ? raw.slice(0, 64) : randomUUID();
     res.setHeader("x-request-id", id);
     return id;
   },
