@@ -91,10 +91,9 @@ describe("recruitingFirms repository", () => {
     expect(result).toEqual(row);
   });
 
-  it("updateRecruitingFirm throws when no fields provided", async () => {
-    await expect(recruitingFirmsRepo.updateRecruitingFirm(id, {})).rejects.toThrow(
-      "At least one field required for update",
-    );
+  it("updateRecruitingFirm returns null when no fields provided", async () => {
+    const result = await recruitingFirmsRepo.updateRecruitingFirm(id, {});
+    expect(result).toBeNull();
     expect(mockQuery).not.toHaveBeenCalled();
   });
 

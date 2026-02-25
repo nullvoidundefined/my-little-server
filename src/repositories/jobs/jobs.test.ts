@@ -125,10 +125,9 @@ describe("jobs repository", () => {
     expect(result).toBeNull();
   });
 
-  it("updateJob throws when no fields provided", async () => {
-    await expect(jobsRepo.updateJob(id, {})).rejects.toThrow(
-      "At least one field required for update",
-    );
+  it("updateJob returns null when no fields provided", async () => {
+    const result = await jobsRepo.updateJob(id, {});
+    expect(result).toBeNull();
     expect(mockQuery).not.toHaveBeenCalled();
   });
 

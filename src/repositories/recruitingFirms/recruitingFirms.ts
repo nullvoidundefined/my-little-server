@@ -52,7 +52,7 @@ export async function updateRecruitingFirm(
     PATCH_FIELDS,
     data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>,
   );
-  if (values.length === 0) throw new Error("At least one field required for update");
+  if (values.length === 0) return null;
   values.push(id);
   const result = await db.query<RecruitingFirm>(
     `UPDATE recruiting_firms SET ${setClause} WHERE id = $${values.length} RETURNING ${RECRUITING_FIRM_COLUMNS}`,

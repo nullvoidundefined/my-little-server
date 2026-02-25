@@ -38,7 +38,7 @@ export async function getJobById(id: string): Promise<Job | null> {
 
 export async function updateJob(id: string, data: JobPatchPayload): Promise<Job | null> {
   const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data);
-  if (values.length === 0) throw new Error("At least one field required for update");
+  if (values.length === 0) return null;
   values.push(id);
   const result = await db.query<Job>(
     `UPDATE jobs SET ${setClause} WHERE id = $${values.length} RETURNING ${JOB_COLUMNS}`,
