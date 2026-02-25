@@ -32,7 +32,7 @@ export const up = (pgm) => {
   pgm.createIndex("jobs", ["applied_date"]);
   pgm.sql(`
     CREATE TRIGGER set_updated_at BEFORE UPDATE ON jobs
-    FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
+    FOR EACH ROW EXECUTE FUNCTION set_updated_at();
   `);
 };
 
