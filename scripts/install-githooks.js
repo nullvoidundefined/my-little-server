@@ -24,12 +24,13 @@ async function main() {
   await writeFile(preCommitPath, PRE_COMMIT, "utf8");
   await chmod(preCommitPath, 0o755);
   try {
-    execSync("git config core.hooksPath .githooks", { cwd: root, stdio: "pipe" });
-    console.log("Pre-commit hook installed at .githooks/pre-commit (gitignored)");
+    execSync("git config core.hooksPath .githooks", { cwd: root, stdio: "inherit" });
+    console.log("Pre-commit hook installed at .githooks/pre-commit");
   } catch {
-    console.log(
-      "Pre-commit hook written to .githooks/pre-commit. Run: git config core.hooksPath .githooks",
+    console.error(
+      "Pre-commit hook written to .githooks/pre-commit but git config failed.\nRun: git config core.hooksPath .githooks",
     );
+    process.exit(1);
   }
 }
 
