@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
 
 import { logger } from "../config/loggerConfig.js";
+import { SESSION_TTL_MS } from "../constants/session.js";
+import { SESSION_COOKIE_NAME } from "../middleware/requireAuth.js";
 import * as authRepo from "../repositories/auth.js";
 import { loginSchema, registerSchema } from "../schemas/auth.js";
-import { SESSION_COOKIE_NAME } from "../middleware/requireAuth.js";
 
 const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,
-  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  maxAge: SESSION_TTL_MS,
   sameSite: "lax" as const,
   secure: process.env.NODE_ENV === "production",
 };
