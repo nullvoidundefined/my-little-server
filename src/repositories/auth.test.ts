@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "app/db/pool.js";
-import { TEST_UUID } from "app/test-utils/uuids.js";
+import { uuid } from "app/test-utils/uuids.js";
 
 import * as authRepo from "app/repositories/auth.js";
 
@@ -21,13 +21,15 @@ vi.mock("bcrypt", () => ({
 const mockQuery = vi.mocked(db.query);
 
 describe("auth repository", () => {
+  const id = uuid();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("createUser inserts and returns user", async () => {
     const row = {
-      id: TEST_UUID,
+      id,
       email: "u@example.com",
       created_at: new Date(),
       updated_at: new Date(),
@@ -52,7 +54,7 @@ describe("auth repository", () => {
 
   it("findUserByEmail returns user when found", async () => {
     const row = {
-      id: TEST_UUID,
+      id: id,
       email: "u@example.com",
       password_hash: "hashed",
       created_at: new Date(),
@@ -77,19 +79,19 @@ describe("auth repository", () => {
 
   it("findUserById returns user when found", async () => {
     const row = {
-      id: TEST_UUID,
+      id: id,
       email: "u@example.com",
       created_at: new Date(),
       updated_at: null,
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await authRepo.findUserById(TEST_UUID);
+    const result = await authRepo.findUserById(id);
     expect(result).toEqual(row);
   });
 
   it("findUserById returns null when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await authRepo.findUserById(TEST_UUID);
+    const result = await authRepo.findUserById(id);
     expect(result).toBeNull();
   });
 
@@ -105,18 +107,18 @@ describe("auth repository", () => {
 
   it("createSession inserts and returns session id", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as never);
-    const result = await authRepo.createSession(TEST_UUID);
+    const result = await authRepo.createSession(id);
     expect(typeof result).toBe("string");
     expect(result).toHaveLength(64);
     expect(mockQuery).toHaveBeenCalledWith(
       expect.stringContaining("INSERT INTO sessions"),
-      [result, TEST_UUID, expect.any(Date)],
+      [result, id, expect.any(Date)],
     );
   });
 
   it("getSessionWithUser returns user when session valid", async () => {
     const row = {
-      id: TEST_UUID,
+      id: id,
       email: "u@example.com",
       created_at: new Date(),
       updated_at: null,
@@ -150,10 +152,10 @@ describe("auth repository", () => {
 
   it("deleteSessionsForUser runs delete query", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 2 } as never);
-    await authRepo.deleteSessionsForUser(TEST_UUID);
+    await authRepo.deleteSessionsForUser(id);
     expect(mockQuery).toHaveBeenCalledWith(
       expect.stringContaining("DELETE FROM sessions"),
-      [TEST_UUID],
+      [id],
     );
   });
 });

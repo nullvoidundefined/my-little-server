@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as recruitersHandlers from "app/handlers/recruiters/recruiters.js";
 import * as recruitersRepo from "app/repositories/recruiters.js";
-import { TEST_UUID, TEST_UUID_2 } from "app/test-utils/uuids.js";
+import { expectError, expectListResponse } from "app/test-utils/responseHelpers.js";
+import { uuid } from "app/test-utils/uuids.js";
 import type { Recruiter } from "app/types/recruiter.js";
 
 vi.mock("app/repositories/recruiters.js");
@@ -21,6 +22,9 @@ app.patch("/recruiters/:id", recruitersHandlers.updateRecruiter);
 app.delete("/recruiters/:id", recruitersHandlers.deleteRecruiter);
 
 describe("recruiters handlers", () => {
+  const id = uuid();
+  const firmId = uuid();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -29,7 +33,7 @@ describe("recruiters handlers", () => {
     it("returns 200 with recruiters from repo", async () => {
       const rows = [
         {
-          id: TEST_UUID,
+          id,
           name: "Jane",
           email: "jane@example.com",
           phone: null,
@@ -48,11 +52,7 @@ describe("recruiters handlers", () => {
 
       const res = await request(app).get("/recruiters");
 
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({
-        data: JSON.parse(JSON.stringify(rows)),
-        meta: { total: 1, limit: 50, offset: 0 },
-      });
+      expectListResponse(res, rows, 1);
     });
 
     it("returns 500 when repo throws", async () => {
@@ -69,39 +69,38 @@ describe("recruiters handlers", () => {
     });
     it("returns 200 when found", async () => {
       const row = {
-        id: TEST_UUID,
+        id,
         name: "Jane",
         email: "jane@example.com",
         phone: null,
         title: null,
         linkedin_url: null,
-        firm_id: TEST_UUID_2,
+        firm_id: firmId,
         notes: null,
         created_at: new Date("2025-01-01"),
         updated_at: new Date("2025-01-02"),
       };
       vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(row as unknown as Recruiter);
-      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
+      const res = await request(app).get(`/recruiters/${id}`);
       expect(res.status).toBe(200);
       expect(res.body.name).toBe("Jane");
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(null);
-      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
+      const res = await request(app).get(`/recruiters/${id}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.getRecruiterById).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
-      expect(res.status).toBe(500);
-      expect(res.body.error.message).toBe("Failed to fetch recruiter");
+      const res = await request(app).get(`/recruiters/${id}`);
+      expectError(res, 500, "Failed to fetch recruiter");
     });
   });
 
   describe("createRecruiter", () => {
     it("returns 201 with created recruiter", async () => {
       const created = {
-        id: TEST_UUID,
+        id,
         name: "Jane",
         email: "jane@example.com",
         phone: null,
@@ -130,8 +129,7 @@ describe("recruiters handlers", () => {
       const res = await request(app)
         .post("/recruiters")
         .send({ name: "Jane", email: "jane@example.com" });
-      expect(res.status).toBe(500);
-      expect(res.body.error.message).toBe("Failed to create recruiter");
+      expectError(res, 500, "Failed to create recruiter");
     });
   });
 
@@ -143,7 +141,7 @@ describe("recruiters handlers", () => {
     });
     it("returns 200 when updated", async () => {
       const updated = {
-        id: TEST_UUID,
+        id,
         name: "Jane Doe",
         email: "jane@example.com",
         phone: null,
@@ -157,19 +155,18 @@ describe("recruiters handlers", () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(
         updated as unknown as Recruiter,
       );
-      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "Jane Doe" });
+      const res = await request(app).patch(`/recruiters/${id}`).send({ name: "Jane Doe" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(null);
-      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "X" });
+      const res = await request(app).patch(`/recruiters/${id}`).send({ name: "X" });
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "Jane Doe" });
-      expect(res.status).toBe(500);
-      expect(res.body.error.message).toBe("Failed to update recruiter");
+      const res = await request(app).patch(`/recruiters/${id}`).send({ name: "Jane Doe" });
+      expectError(res, 500, "Failed to update recruiter");
     });
   });
 
@@ -181,19 +178,18 @@ describe("recruiters handlers", () => {
     });
     it("returns 204 when deleted", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockResolvedValueOnce(true);
-      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
+      const res = await request(app).delete(`/recruiters/${id}`);
       expect(res.status).toBe(204);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockResolvedValueOnce(false);
-      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
+      const res = await request(app).delete(`/recruiters/${id}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
-      expect(res.status).toBe(500);
-      expect(res.body.error.message).toBe("Failed to delete recruiter");
+      const res = await request(app).delete(`/recruiters/${id}`);
+      expectError(res, 500, "Failed to delete recruiter");
     });
   });
 });

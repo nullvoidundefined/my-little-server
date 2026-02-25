@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as recruitingFirmsHandlers from "app/handlers/recruitingFirms/recruitingFirms.js";
 import * as recruitingFirmsRepo from "app/repositories/recruitingFirms.js";
-import { TEST_UUID } from "app/test-utils/uuids.js";
+import { expectError, expectListResponse } from "app/test-utils/responseHelpers.js";
+import { uuid } from "app/test-utils/uuids.js";
 import type { RecruitingFirm } from "app/types/recruitingFirm.js";
 
 vi.mock("app/repositories/recruitingFirms.js");
@@ -21,6 +22,8 @@ app.patch("/recruiting-firms/:id", recruitingFirmsHandlers.updateRecruitingFirm)
 app.delete("/recruiting-firms/:id", recruitingFirmsHandlers.deleteRecruitingFirm);
 
 describe("recruitingFirms handlers", () => {
+  const id = uuid();
+
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -29,7 +32,7 @@ describe("recruitingFirms handlers", () => {
     it("returns 200 with firms from repo", async () => {
       const rows = [
         {
-          id: TEST_UUID,
+          id,
           name: "Acme",
           website: null,
           linkedin_url: null,
@@ -43,11 +46,7 @@ describe("recruitingFirms handlers", () => {
       );
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmsTotalCount).mockResolvedValueOnce(1);
       const res = await request(app).get("/recruiting-firms");
-      expect(res.status).toBe(200);
-      expect(res.body).toEqual({
-        data: JSON.parse(JSON.stringify(rows)),
-        meta: { total: 1, limit: 50, offset: 0 },
-      });
+      expectListResponse(res, rows, 1);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.listRecruitingFirms).mockRejectedValueOnce(
@@ -65,7 +64,7 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 200 when found", async () => {
       const row = {
-        id: TEST_UUID,
+        id: id,
         name: "Acme",
         website: "https://acme.com",
         linkedin_url: null,
@@ -76,29 +75,28 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockResolvedValueOnce(
         row as unknown as RecruitingFirm,
       );
-      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
+      const res = await request(app).get(`/recruiting-firms/${id}`);
       expect(res.status).toBe(200);
       expect(res.body.name).toBe("Acme");
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockResolvedValueOnce(null);
-      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
+      const res = await request(app).get(`/recruiting-firms/${id}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
-      expect(res.status).toBe(500);
-      expect(res.body.error.message).toBe("Failed to fetch recruiting firm");
+      const res = await request(app).get(`/recruiting-firms/${id}`);
+      expectError(res, 500, "Failed to fetch recruiting firm");
     });
   });
 
   describe("createRecruitingFirm", () => {
     it("returns 201 with created firm", async () => {
       const created = {
-        id: TEST_UUID,
+        id: id,
         name: "Acme",
         website: null,
         linkedin_url: null,
@@ -135,7 +133,7 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 200 when updated", async () => {
       const updated = {
-        id: TEST_UUID,
+        id: id,
         name: "Acme Recruiting",
         website: null,
         linkedin_url: null,
@@ -147,13 +145,13 @@ describe("recruitingFirms handlers", () => {
         updated as unknown as RecruitingFirm,
       );
       const res = await request(app)
-        .patch(`/recruiting-firms/${TEST_UUID}`)
+        .patch(`/recruiting-firms/${id}`)
         .send({ name: "Acme Recruiting" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(null);
-      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "X" });
+      const res = await request(app).patch(`/recruiting-firms/${id}`).send({ name: "X" });
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
@@ -161,7 +159,7 @@ describe("recruitingFirms handlers", () => {
         new Error("DB error"),
       );
       const res = await request(app)
-        .patch(`/recruiting-firms/${TEST_UUID}`)
+        .patch(`/recruiting-firms/${id}`)
         .send({ name: "Acme Recruiting" });
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to update recruiting firm");
@@ -176,19 +174,19 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 204 when deleted", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(true);
-      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
+      const res = await request(app).delete(`/recruiting-firms/${id}`);
       expect(res.status).toBe(204);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(false);
-      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
+      const res = await request(app).delete(`/recruiting-firms/${id}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
+      const res = await request(app).delete(`/recruiting-firms/${id}`);
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to delete recruiting firm");
     });

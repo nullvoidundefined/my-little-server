@@ -6,10 +6,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
 import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
 import * as authRepo from "app/repositories/auth.js";
-import { TEST_UUID } from "app/test-utils/uuids.js";
+import { uuid } from "app/test-utils/uuids.js";
 
 vi.mock("app/repositories/auth.js");
 
+const id = uuid();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
@@ -37,7 +38,7 @@ describe("loadSession", () => {
 
   it("sets req.user when session valid", async () => {
     const user = {
-      id: TEST_UUID,
+      id: id,
       email: "u@example.com",
       created_at: new Date("2025-01-01"),
       updated_at: null,
@@ -50,7 +51,7 @@ describe("loadSession", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.user).toEqual({
-      id: TEST_UUID,
+      id: id,
       email: "u@example.com",
       created_at: "2025-01-01T00:00:00.000Z",
       updated_at: null,
