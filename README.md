@@ -25,8 +25,9 @@ npm run migrate:up
 | `npm run start`   | Run compiled app (`node dist/index.js`) |
 | `npm run migrate:up`   | Apply pending migrations      |
 | `npm run migrate:down` | Roll back one migration       |
-| `npm run test`    | Run tests                     |
-| `npm run test:coverage` | Run tests with coverage   |
+| `npm run test`    | Run unit tests (mocks DB)     |
+| `npm run test:coverage` | Run unit tests with coverage   |
+| `npm run test:integration` | Run integration tests (real DB; see below) |
 | `npm run lint`    | Lint source                   |
 | `npm run format:check` | Check formatting (Prettier) |
 | `npm run format`  | Format code                   |
@@ -68,3 +69,30 @@ Base URL: `http://localhost:3000` (or your `PORT`).
 | `DELETE` | `/recruiting-firms/:id`   | Delete firm         |
 
 Error responses use the shape `{ error: { message: string } }`.
+
+## Integration tests (guidance)
+
+Unit tests mock the DB and handlers; integration tests run the full stack (Express + repos + PostgreSQL).
+
+**Setup**
+
+- Use a **separate test database** (e.g. a Neon branch or a local `my_little_server_test`). Set `DATABASE_URL` (or a dedicated `TEST_DATABASE_URL`) so integration tests never touch dev/prod data.
+- Apply migrations before running: `npm run migrate:up` (or run migrations in test setup).
+- Optionally add a Vitest project in `vitest.config.ts` that runs only `**/*.integration.test.ts` (or a `tests/integration/` folder) so you can run `npm run test` for units only and `npm run test:integration` for integration.
+
+**What to test**
+
+- **Happy paths**: e.g. `POST /jobs` with valid body → 201 and the created job in the response; `GET /jobs/:id` returns it; `PATCH`/`DELETE` behave as expected. Same idea for recruiters and recruiting firms.
+- **Validation**: invalid body or `:id` → 400; non-existent `:id` for GET/PATCH/DELETE → 404.
+- **Pagination**: `GET /jobs?limit=2&offset=1` returns the correct slice.
+
+**Structure**
+
+- Create the Express app (or import it) in the test file or a shared setup; do **not** call `app.listen()` if you use supertest (supertest calls the app internally).
+- Use **supertest** with the app: `request(app).get('/jobs').expect(200)`.
+- Seed data only when needed (e.g. create a job then GET/PATCH/DELETE it); avoid relying on existing dev data.
+- Clean up created rows in `afterEach`/`afterAll` if you care about repeatability, or use a fresh DB/branch per run.
+
+**CI**
+
+- In CI, set `DATABASE_URL` (or `TEST_DATABASE_URL`) to a dedicated test DB and run migrations before `npm run test:integration`. Keep the test DB small and short-lived if possible (e.g. Neon branch that gets reset or dropped after the run).
