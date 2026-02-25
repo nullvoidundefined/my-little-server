@@ -1,8 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
+import { SESSION_COOKIE_NAME } from "../constants/session.js";
 import * as authRepo from "../repositories/auth.js";
-
-const SESSION_COOKIE_NAME = "sid";
 
 export async function loadSession(
   req: Request,
@@ -40,5 +39,3 @@ export function requireAuth(
   }
   next();
 }
-
-export { SESSION_COOKIE_NAME };
