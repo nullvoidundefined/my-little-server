@@ -55,6 +55,7 @@ export async function login(req: Request, res: Response): Promise<void> {
       res.status(401).json({ error: { message: "Invalid email or password" } });
       return;
     }
+    await authRepo.deleteSessionsForUser(user.id);
     const sessionId = await authRepo.createSession(user.id);
     res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
     res.json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
