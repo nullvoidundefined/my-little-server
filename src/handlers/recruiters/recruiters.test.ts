@@ -33,15 +33,15 @@ describe("recruiters handlers", () => {
     it("returns 200 with recruiters from repo", async () => {
       const rows = [
         {
-          id,
-          name: "Jane",
+          created_at: new Date("2025-01-01"),
           email: "jane@example.com",
+          firm_id: null,
+          id,
+          linkedin_url: null,
+          name: "Jane",
+          notes: null,
           phone: null,
           title: null,
-          linkedin_url: null,
-          firm_id: null,
-          notes: null,
-          created_at: new Date("2025-01-01"),
           updated_at: new Date("2025-01-02"),
         },
       ];
