@@ -19,4 +19,5 @@ export const up = (pgm) => {
 export const down = (pgm) => {
   pgm.sql("DROP TRIGGER IF EXISTS set_updated_at ON users;");
   pgm.dropTable("users");
+  // set_updated_at() is created and dropped in 1771879388542_create-jobs-table (run down in order).
 };
