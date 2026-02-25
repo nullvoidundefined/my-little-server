@@ -72,6 +72,8 @@ Base URL: `http://localhost:3000` (or your `PORT`).
 
 Error responses use the shape `{ error: { message: string } }`.
 
+**CSRF:** For `POST`, `PATCH`, `PUT`, and `DELETE`, send the header `X-Requested-With: XMLHttpRequest` (or any value). Requests without it receive 403.
+
 ## Integration tests (guidance)
 
 Unit tests mock the DB and handlers; integration tests run the full stack (Express + repos + PostgreSQL).

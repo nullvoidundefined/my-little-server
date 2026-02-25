@@ -6,6 +6,7 @@ import helmet from "helmet";
 import { corsConfig } from "./config/corsConfig.js";
 import { httpLogger, logger } from "./config/loggerConfig.js";
 import db from "./database/utilities/connectionPool/connectionPool.js";
+import { csrfGuard } from "./middleware/csrfGuard.js";
 import { loadSession, requireAuth } from "./middleware/requireAuth.js";
 import { authRouter } from "./routes/auth.js";
 import { jobsRouter } from "./routes/jobs.js";
@@ -37,6 +38,9 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 
 app.use(cookieParser());
+
+// Require X-Requested-With on state-changing requests to mitigate CSRF.
+app.use(csrfGuard);
 
 // Load session from cookie and set req.user when valid (does not block unauthenticated requests).
 app.use(loadSession);
