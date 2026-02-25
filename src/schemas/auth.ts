@@ -16,7 +16,7 @@ export const userSchema = z.object({
   id: uuidSchema,
   email: z.string().email(),
   created_at: z.coerce.date(),
-  updated_at: z.coerce.date().nullable(),
+  updated_at: z.coerce.date(),
 });
 
 export type RegisterInput = z.infer<typeof registerSchema>;

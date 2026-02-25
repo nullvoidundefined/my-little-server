@@ -21,7 +21,7 @@ export const patchRecruiterSchema = createRecruiterSchema
 export const recruiterSchema = createRecruiterSchema.extend({
   id: uuidSchema,
   created_at: z.coerce.date(),
-  updated_at: z.coerce.date().nullable(),
+  updated_at: z.coerce.date(),
 });
 
 export type Recruiter = z.infer<typeof recruiterSchema>;

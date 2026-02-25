@@ -16,7 +16,7 @@ export const patchRecruitingFirmSchema = createRecruitingFirmSchema
 export const recruitingFirmSchema = createRecruitingFirmSchema.extend({
   created_at: z.coerce.date(),
   id: z.string().uuid("Invalid ID format"),
-  updated_at: z.coerce.date().nullable(),
+  updated_at: z.coerce.date(),
 });
 
 export type RecruitingFirm = z.infer<typeof recruitingFirmSchema>;

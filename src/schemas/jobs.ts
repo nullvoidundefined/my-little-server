@@ -19,7 +19,7 @@ export const patchJobSchema = createJobSchema
 export const jobSchema = createJobSchema.extend({
   id: z.string().uuid("Invalid ID format"),
   created_at: z.coerce.date(),
-  updated_at: z.coerce.date().nullable(),
+  updated_at: z.coerce.date(),
 });
 
 export type Job = z.infer<typeof jobSchema>;
