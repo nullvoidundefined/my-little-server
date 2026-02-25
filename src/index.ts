@@ -80,9 +80,8 @@ const server = app.listen(PORT, () => logger.info({ port: PORT }, "Server runnin
 
 async function shutdown(signal: string) {
   logger.info({ signal }, "Shutting down gracefully");
-  server.close(() => {
-    logger.info("HTTP server closed");
-  });
+  await new Promise<void>((resolve) => server.close(() => resolve()));
+  logger.info("HTTP server closed");
   await db.end();
   process.exit(0);
 }
