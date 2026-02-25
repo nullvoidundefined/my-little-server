@@ -9,7 +9,6 @@ export const up = (pgm) => {
     created_at: { type: "timestamptz", default: pgm.func("NOW()") },
     updated_at: { type: "timestamptz", default: pgm.func("NOW()") },
   });
-  pgm.createIndex("users", "email", { unique: true });
   pgm.sql(`
     CREATE TRIGGER set_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE PROCEDURE set_updated_at();
