@@ -3,11 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import { SESSION_COOKIE_NAME } from "../constants/session.js";
 import * as authRepo from "../repositories/auth.js";
 
-export async function loadSession(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): Promise<void> {
+export async function loadSession(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = req.cookies?.[SESSION_COOKIE_NAME];
   if (!token || typeof token !== "string") {
     next();
@@ -28,11 +24,7 @@ export async function loadSession(
   next();
 }
 
-export function requireAuth(
-  req: Request,
-  res: Response,
-  next: NextFunction,
-): void {
+export function requireAuth(req: Request, res: Response, next: NextFunction): void {
   if (!req.user) {
     res.status(401).json({ error: { message: "Authentication required" } });
     return;

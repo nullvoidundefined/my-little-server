@@ -17,9 +17,7 @@ vi.mock("../handlers/recruiters.js", () => ({
   updateRecruiter: vi.fn((req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "updateRecruiter", id: req.params.id }),
   ),
-  deleteRecruiter: vi.fn((_req: express.Request, res: express.Response) =>
-    res.status(204).send(),
-  ),
+  deleteRecruiter: vi.fn((_req: express.Request, res: express.Response) => res.status(204).send()),
 }));
 
 const app = express();
@@ -49,9 +47,7 @@ describe("recruitersRouter", () => {
   });
 
   it("routes PATCH /recruiters/:id to updateRecruiter", async () => {
-    const res = await request(app)
-      .patch("/recruiters/123")
-      .send({ any: "payload" });
+    const res = await request(app).patch("/recruiters/123").send({ any: "payload" });
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "updateRecruiter", id: "123" });

@@ -1,8 +1,5 @@
 import db from "../db/pool.js";
-import type {
-  CreateRecruitingFirmInput,
-  RecruitingFirm,
-} from "../types/recruitingFirm.js";
+import type { CreateRecruitingFirmInput, RecruitingFirm } from "../types/recruitingFirm.js";
 import { buildUpdateClause } from "../utils/buildUpdateClause.js";
 
 const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at, updated_at";
@@ -39,9 +36,7 @@ export async function listRecruitingFirms(
   return result.rows;
 }
 
-export async function getRecruitingFirmById(
-  id: number,
-): Promise<RecruitingFirm | null> {
+export async function getRecruitingFirmById(id: number): Promise<RecruitingFirm | null> {
   const result = await db.query<RecruitingFirm>(
     `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms WHERE id = $1`,
     [id],
@@ -53,7 +48,10 @@ export async function updateRecruitingFirm(
   id: number,
   data: Partial<CreateRecruitingFirmInput>,
 ): Promise<RecruitingFirm | null> {
-  const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>);
+  const { setClause, values } = buildUpdateClause(
+    PATCH_FIELDS,
+    data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>,
+  );
   if (values.length === 0) throw new Error("At least one field required for update");
   values.push(id);
   const result = await db.query<RecruitingFirm>(
@@ -64,9 +62,6 @@ export async function updateRecruitingFirm(
 }
 
 export async function deleteRecruitingFirm(id: number): Promise<boolean> {
-  const result = await db.query(
-    "DELETE FROM recruiting_firms WHERE id = $1 RETURNING id",
-    [id],
-  );
+  const result = await db.query("DELETE FROM recruiting_firms WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

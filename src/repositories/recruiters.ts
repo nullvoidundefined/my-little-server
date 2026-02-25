@@ -58,7 +58,10 @@ export async function updateRecruiter(
   id: number,
   data: Partial<CreateRecruiterInput>,
 ): Promise<Recruiter | null> {
-  const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>);
+  const { setClause, values } = buildUpdateClause(
+    PATCH_FIELDS,
+    data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>,
+  );
   if (values.length === 0) throw new Error("At least one field required for update");
   values.push(id);
   const result = await db.query<Recruiter>(
@@ -69,9 +72,6 @@ export async function updateRecruiter(
 }
 
 export async function deleteRecruiter(id: number): Promise<boolean> {
-  const result = await db.query(
-    "DELETE FROM recruiters WHERE id = $1 RETURNING id",
-    [id],
-  );
+  const result = await db.query("DELETE FROM recruiters WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

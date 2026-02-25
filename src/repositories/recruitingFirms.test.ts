@@ -33,10 +33,7 @@ describe("recruitingFirms repository", () => {
   it("listRecruitingFirms returns rows", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
     await recruitingFirmsRepo.listRecruitingFirms(10, 0);
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining("SELECT"),
-      [10, 0],
-    );
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [10, 0]);
   });
 
   it("getRecruitingFirmById returns null when not found", async () => {

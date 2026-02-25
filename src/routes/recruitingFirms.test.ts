@@ -42,18 +42,14 @@ describe("recruitingFirmsRouter", () => {
   });
 
   it("routes POST /recruiting-firms to createRecruitingFirm", async () => {
-    const res = await request(app)
-      .post("/recruiting-firms")
-      .send({ any: "payload" });
+    const res = await request(app).post("/recruiting-firms").send({ any: "payload" });
 
     expect(res.status).toBe(201);
     expect(res.body).toEqual({ route: "createRecruitingFirm" });
   });
 
   it("routes PATCH /recruiting-firms/:id to updateRecruitingFirm", async () => {
-    const res = await request(app)
-      .patch("/recruiting-firms/123")
-      .send({ any: "payload" });
+    const res = await request(app).patch("/recruiting-firms/123").send({ any: "payload" });
 
     expect(res.status).toBe(200);
     expect(res.body).toEqual({ route: "updateRecruitingFirm", id: "123" });

@@ -19,7 +19,7 @@ export function errorHandler(
 
   res.status(status).json({
     error: {
-      message: isProd ? "Internal server error" : (err instanceof Error ? err.stack : String(err)),
+      message: isProd ? "Internal server error" : err instanceof Error ? err.stack : String(err),
     },
   });
 }

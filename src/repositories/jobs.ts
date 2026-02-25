@@ -31,18 +31,15 @@ export async function listJobs(limit: number, offset: number): Promise<Job[]> {
 }
 
 export async function getJobById(id: number): Promise<Job | null> {
-  const result = await db.query<Job>(
-    `SELECT ${JOB_COLUMNS} FROM jobs WHERE id = $1`,
-    [id],
-  );
+  const result = await db.query<Job>(`SELECT ${JOB_COLUMNS} FROM jobs WHERE id = $1`, [id]);
   return result.rows[0] ?? null;
 }
 
-export async function updateJob(
-  id: number,
-  data: Partial<CreateJobInput>,
-): Promise<Job | null> {
-  const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>);
+export async function updateJob(id: number, data: Partial<CreateJobInput>): Promise<Job | null> {
+  const { setClause, values } = buildUpdateClause(
+    PATCH_FIELDS,
+    data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>,
+  );
   if (values.length === 0) throw new Error("At least one field required for update");
   values.push(id);
   const result = await db.query<Job>(
@@ -53,9 +50,6 @@ export async function updateJob(
 }
 
 export async function deleteJob(id: number): Promise<boolean> {
-  const result = await db.query(
-    "DELETE FROM jobs WHERE id = $1 RETURNING id",
-    [id],
-  );
+  const result = await db.query("DELETE FROM jobs WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

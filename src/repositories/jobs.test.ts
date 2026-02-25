@@ -67,10 +67,7 @@ describe("jobs repository", () => {
     const result = await jobsRepo.listJobs(10, 0);
 
     expect(result).toEqual(rows);
-    expect(mockQuery).toHaveBeenCalledWith(
-      expect.stringContaining("SELECT"),
-      [10, 0],
-    );
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [10, 0]);
   });
 
   it("getJobById returns null when not found", async () => {

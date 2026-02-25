@@ -17,9 +17,7 @@ vi.mock("../handlers/jobs.js", () => ({
   updateJob: vi.fn((req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "updateJob", id: req.params.id }),
   ),
-  deleteJob: vi.fn((_req: express.Request, res: express.Response) =>
-    res.status(204).send(),
-  ),
+  deleteJob: vi.fn((_req: express.Request, res: express.Response) => res.status(204).send()),
 }));
 
 const app = express();
