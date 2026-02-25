@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "app/db/pool.js";
@@ -101,13 +103,14 @@ describe("auth repository", () => {
     expect(result).toBe(false);
   });
 
-  it("createSession inserts and returns session id", async () => {
+  it("createSession inserts hash of token and returns raw token", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 1 } as never);
     const result = await authRepo.createSession(id);
     expect(typeof result).toBe("string");
     expect(result).toHaveLength(64);
+    const storedHash = crypto.createHash("sha256").update(result, "utf8").digest("hex");
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO sessions"), [
-      result,
+      storedHash,
       id,
       expect.any(Date),
     ]);
@@ -123,7 +126,8 @@ describe("auth repository", () => {
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
     const result = await authRepo.getSessionWithUser("session-id");
     expect(result).toEqual(row);
-    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("sessions"), ["session-id"]);
+    const expectedHash = crypto.createHash("sha256").update("session-id", "utf8").digest("hex");
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("sessions"), [expectedHash]);
   });
 
   it("getSessionWithUser returns null when no row", async () => {
@@ -136,6 +140,10 @@ describe("auth repository", () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
     const result = await authRepo.deleteSession("sid");
     expect(result).toBe(true);
+    const expectedHash = crypto.createHash("sha256").update("sid", "utf8").digest("hex");
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("DELETE FROM sessions"), [
+      expectedHash,
+    ]);
   });
 
   it("deleteSession returns false when not found", async () => {

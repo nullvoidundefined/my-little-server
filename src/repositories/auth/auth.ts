@@ -8,6 +8,11 @@ import type { User } from "app/schemas/auth.js";
 
 const SALT_ROUNDS = 10;
 
+/** Hash session token for storage. Cookie holds raw token; DB holds hash so a dump doesn't expose sessions. */
+function hashSessionToken(token: string): string {
+  return crypto.createHash("sha256").update(token, "utf8").digest("hex");
+}
+
 export async function createUser(email: string, password: string): Promise<User> {
   const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
   const result = await db.query<User & { password_hash: string }>(
@@ -42,30 +47,33 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
 }
 
 export async function createSession(userId: string): Promise<string> {
-  const id = crypto.randomBytes(32).toString("hex");
+  const token = crypto.randomBytes(32).toString("hex");
+  const idHash = hashSessionToken(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
   await db.query("INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)", [
-    id,
+    idHash,
     userId,
     expiresAt,
   ]);
-  return id;
+  return token;
 }
 
 /** Returns the user for a valid session in one query (sessions JOIN users). */
 export async function getSessionWithUser(sessionId: string): Promise<User | null> {
+  const idHash = hashSessionToken(sessionId);
   const result = await db.query<User>(
     `SELECT u.id, u.email, u.created_at, u.updated_at
      FROM sessions s
      INNER JOIN users u ON u.id = s.user_id
      WHERE s.id = $1 AND s.expires_at > NOW()`,
-    [sessionId],
+    [idHash],
   );
   return result.rows[0] ?? null;
 }
 
 export async function deleteSession(sessionId: string): Promise<boolean> {
-  const result = await db.query("DELETE FROM sessions WHERE id = $1 RETURNING id", [sessionId]);
+  const idHash = hashSessionToken(sessionId);
+  const result = await db.query("DELETE FROM sessions WHERE id = $1 RETURNING id", [idHash]);
   return (result.rowCount ?? 0) > 0;
 }
 
