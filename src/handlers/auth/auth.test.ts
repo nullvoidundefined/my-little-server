@@ -5,11 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
 import * as authHandlers from "app/handlers/auth/auth.js";
-import * as authRepo from "app/repositories/auth.js";
+import * as authRepo from "app/repositories/auth/auth.js";
 import type { User } from "app/schemas/auth.js";
 import { uuid } from "app/test-utils/uuids.js";
 
-vi.mock("app/repositories/auth.js");
+vi.mock("app/repositories/auth/auth.js");
 vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));

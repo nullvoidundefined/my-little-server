@@ -5,10 +5,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
 import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
-import * as authRepo from "app/repositories/auth.js";
+import * as authRepo from "app/repositories/auth/auth.js";
 import { uuid } from "app/test-utils/uuids.js";
 
-vi.mock("app/repositories/auth.js");
+vi.mock("app/repositories/auth/auth.js");
 
 const id = uuid();
 const app = express();

@@ -3,12 +3,12 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as recruitersHandlers from "app/handlers/recruiters/recruiters.js";
-import * as recruitersRepo from "app/repositories/recruiters.js";
+import * as recruitersRepo from "app/repositories/recruiters/recruiters.js";
 import { expectError, expectListResponse } from "app/test-utils/responseHelpers.js";
 import { uuid } from "app/test-utils/uuids.js";
 import type { Recruiter } from "app/types/recruiter.js";
 
-vi.mock("app/repositories/recruiters.js");
+vi.mock("app/repositories/recruiters/recruiters.js");
 vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));

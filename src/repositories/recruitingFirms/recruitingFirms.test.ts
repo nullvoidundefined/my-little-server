@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "app/db/pool.js";
-import * as recruitingFirmsRepo from "app/repositories/recruitingFirms.js";
+import * as recruitingFirmsRepo from "app/repositories/recruitingFirms/recruitingFirms.js";
 import { uuid } from "app/test-utils/uuids.js";
 
 vi.mock("app/db/pool.js", () => ({

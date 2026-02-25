@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type { ZodIssue } from "zod";
 
 import { logger } from "app/config/loggerConfig.js";
-import * as recruitingFirmsRepo from "app/repositories/recruitingFirms.js";
+import * as recruitingFirmsRepo from "app/repositories/recruitingFirms/recruitingFirms.js";
 import {
   createRecruitingFirmSchema,
   patchRecruitingFirmSchema,
