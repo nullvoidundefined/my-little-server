@@ -21,11 +21,6 @@ export async function register(req: Request, res: Response): Promise<void> {
   }
   const { email, password } = parsed.data;
   try {
-    const existing = await authRepo.findUserByEmail(email);
-    if (existing) {
-      res.status(409).json({ error: { message: "Email already registered" } });
-      return;
-    }
     const user = await authRepo.createUser(email, password);
     const sessionId = await authRepo.createSession(user.id);
     res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
