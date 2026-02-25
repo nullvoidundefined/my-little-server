@@ -10,12 +10,7 @@ export async function loadSession(req: Request, res: Response, next: NextFunctio
     return;
   }
   try {
-    const session = await authRepo.getSession(token);
-    if (!session) {
-      next();
-      return;
-    }
-    const user = await authRepo.findUserById(session.user_id);
+    const user = await authRepo.getSessionWithUser(token);
     if (user) req.user = user;
   } catch (err) {
     next(err);

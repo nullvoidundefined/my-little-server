@@ -52,9 +52,13 @@ export async function createSession(userId: number): Promise<string> {
   return id;
 }
 
-export async function getSession(sessionId: string): Promise<{ user_id: number } | null> {
-  const result = await db.query<{ user_id: number }>(
-    "SELECT user_id FROM sessions WHERE id = $1 AND expires_at > NOW()",
+/** Returns the user for a valid session in one query (sessions JOIN users). */
+export async function getSessionWithUser(sessionId: string): Promise<User | null> {
+  const result = await db.query<User>(
+    `SELECT u.id, u.email, u.created_at, u.updated_at
+     FROM sessions s
+     INNER JOIN users u ON u.id = s.user_id
+     WHERE s.id = $1 AND s.expires_at > NOW()`,
     [sessionId],
   );
   return result.rows[0] ?? null;
