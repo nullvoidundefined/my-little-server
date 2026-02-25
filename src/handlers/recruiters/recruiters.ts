@@ -50,6 +50,12 @@ export async function createRecruiter(req: Request, res: Response): Promise<void
     const row = await recruitersRepo.createRecruiter(parsed.data);
     res.status(201).json(row);
   } catch (err) {
+    const code =
+      err && typeof err === "object" && "code" in err ? (err as { code: string }).code : undefined;
+    if (code === "23503") {
+      res.status(400).json({ error: { message: "Firm not found" } });
+      return;
+    }
     logger.error({ err }, "Failed to create recruiter");
     res.status(500).json({ error: { message: "Failed to create recruiter" } });
   }
@@ -75,6 +81,12 @@ export async function updateRecruiter(req: Request, res: Response): Promise<void
     }
     res.json(row);
   } catch (err) {
+    const code =
+      err && typeof err === "object" && "code" in err ? (err as { code: string }).code : undefined;
+    if (code === "23503") {
+      res.status(400).json({ error: { message: "Firm not found" } });
+      return;
+    }
     logger.error({ err }, "Failed to update recruiter");
     res.status(500).json({ error: { message: "Failed to update recruiter" } });
   }

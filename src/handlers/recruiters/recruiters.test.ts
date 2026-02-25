@@ -124,6 +124,16 @@ describe("recruiters handlers", () => {
       const res = await request(app).post("/recruiters").send({});
       expect(res.status).toBe(400);
     });
+    it("returns 400 when firm_id does not exist (23503)", async () => {
+      const err = new Error("foreign key violation");
+      (err as Error & { code: string }).code = "23503";
+      vi.mocked(recruitersRepo.createRecruiter).mockRejectedValueOnce(err);
+      const res = await request(app)
+        .post("/recruiters")
+        .send({ name: "Jane", email: "jane@example.com", firm_id: firmId });
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toBe("Firm not found");
+    });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.createRecruiter).mockRejectedValueOnce(new Error("DB error"));
       const res = await request(app)
@@ -168,6 +178,16 @@ describe("recruiters handlers", () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(null);
       const res = await request(app).patch(`/recruiters/${id}`).send({ name: "X" });
       expect(res.status).toBe(404);
+    });
+    it("returns 400 when firm_id does not exist (23503)", async () => {
+      const err = new Error("foreign key violation");
+      (err as Error & { code: string }).code = "23503";
+      vi.mocked(recruitersRepo.updateRecruiter).mockRejectedValueOnce(err);
+      const res = await request(app)
+        .patch(`/recruiters/${id}`)
+        .send({ firm_id: firmId });
+      expect(res.status).toBe(400);
+      expect(res.body.error.message).toBe("Firm not found");
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockRejectedValueOnce(new Error("DB error"));
