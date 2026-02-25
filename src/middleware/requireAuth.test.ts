@@ -4,6 +4,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "../constants/session.js";
+import { TEST_UUID } from "../test-utils/uuids.js";
 import * as authRepo from "../repositories/auth.js";
 
 import { loadSession, requireAuth } from "./requireAuth.js";
@@ -37,7 +38,7 @@ describe("loadSession", () => {
 
   it("sets req.user when session valid", async () => {
     const user = {
-      id: 1,
+      id: TEST_UUID,
       email: "u@example.com",
       created_at: new Date("2025-01-01"),
       updated_at: null,
@@ -50,7 +51,7 @@ describe("loadSession", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.user).toEqual({
-      id: 1,
+      id: TEST_UUID,
       email: "u@example.com",
       created_at: "2025-01-01T00:00:00.000Z",
       updated_at: null,

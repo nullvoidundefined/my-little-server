@@ -2,6 +2,7 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 
+import { TEST_UUID } from "../test-utils/uuids.js";
 import { recruitingFirmsRouter } from "./recruitingFirms.js";
 
 vi.mock("../handlers/recruitingFirms/recruitingFirms.js", () => ({
@@ -35,10 +36,10 @@ describe("recruitingFirmsRouter", () => {
   });
 
   it("routes GET /recruiting-firms/:id to getRecruitingFirm", async () => {
-    const res = await request(app).get("/recruiting-firms/123");
+    const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ route: "getRecruitingFirm", id: "123" });
+    expect(res.body).toEqual({ route: "getRecruitingFirm", id: TEST_UUID });
   });
 
   it("routes POST /recruiting-firms to createRecruitingFirm", async () => {
@@ -49,14 +50,14 @@ describe("recruitingFirmsRouter", () => {
   });
 
   it("routes PATCH /recruiting-firms/:id to updateRecruitingFirm", async () => {
-    const res = await request(app).patch("/recruiting-firms/123").send({ any: "payload" });
+    const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ any: "payload" });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ route: "updateRecruitingFirm", id: "123" });
+    expect(res.body).toEqual({ route: "updateRecruitingFirm", id: TEST_UUID });
   });
 
   it("routes DELETE /recruiting-firms/:id to deleteRecruitingFirm", async () => {
-    const res = await request(app).delete("/recruiting-firms/456");
+    const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
 
     expect(res.status).toBe(204);
     expect(res.body).toEqual({});

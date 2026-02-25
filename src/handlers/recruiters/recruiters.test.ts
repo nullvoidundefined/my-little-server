@@ -2,6 +2,7 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { TEST_UUID, TEST_UUID_2 } from "../../test-utils/uuids.js";
 import * as recruitersRepo from "../../repositories/recruiters.js";
 import type { Recruiter } from "../../types/recruiter.js";
 
@@ -29,7 +30,7 @@ describe("recruiters handlers", () => {
     it("returns 200 with recruiters from repo", async () => {
       const rows = [
         {
-          id: 1,
+          id: TEST_UUID,
           name: "Jane",
           email: "jane@example.com",
           phone: null,
@@ -69,30 +70,30 @@ describe("recruiters handlers", () => {
     });
     it("returns 200 when found", async () => {
       const row = {
-        id: 1,
+        id: TEST_UUID,
         name: "Jane",
         email: "jane@example.com",
         phone: null,
         title: null,
         linkedin_url: null,
-        firm_id: 1,
+        firm_id: TEST_UUID_2,
         notes: null,
         created_at: new Date("2025-01-01"),
         updated_at: new Date("2025-01-02"),
       };
       vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(row as unknown as Recruiter);
-      const res = await request(app).get("/recruiters/1");
+      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(200);
       expect(res.body.name).toBe("Jane");
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(null);
-      const res = await request(app).get("/recruiters/999");
+      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.getRecruiterById).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).get("/recruiters/1");
+      const res = await request(app).get(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to fetch recruiter");
     });
@@ -101,7 +102,7 @@ describe("recruiters handlers", () => {
   describe("createRecruiter", () => {
     it("returns 201 with created recruiter", async () => {
       const created = {
-        id: 1,
+        id: TEST_UUID,
         name: "Jane",
         email: "jane@example.com",
         phone: null,
@@ -143,7 +144,7 @@ describe("recruiters handlers", () => {
     });
     it("returns 200 when updated", async () => {
       const updated = {
-        id: 1,
+        id: TEST_UUID,
         name: "Jane Doe",
         email: "jane@example.com",
         phone: null,
@@ -157,17 +158,17 @@ describe("recruiters handlers", () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(
         updated as unknown as Recruiter,
       );
-      const res = await request(app).patch("/recruiters/1").send({ name: "Jane Doe" });
+      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "Jane Doe" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockResolvedValueOnce(null);
-      const res = await request(app).patch("/recruiters/999").send({ name: "X" });
+      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "X" });
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.updateRecruiter).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).patch("/recruiters/1").send({ name: "Jane Doe" });
+      const res = await request(app).patch(`/recruiters/${TEST_UUID}`).send({ name: "Jane Doe" });
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to update recruiter");
     });
@@ -181,17 +182,17 @@ describe("recruiters handlers", () => {
     });
     it("returns 204 when deleted", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockResolvedValueOnce(true);
-      const res = await request(app).delete("/recruiters/1");
+      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(204);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockResolvedValueOnce(false);
-      const res = await request(app).delete("/recruiters/999");
+      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitersRepo.deleteRecruiter).mockRejectedValueOnce(new Error("DB error"));
-      const res = await request(app).delete("/recruiters/1");
+      const res = await request(app).delete(`/recruiters/${TEST_UUID}`);
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to delete recruiter");
     });

@@ -46,7 +46,7 @@ export async function listRecruiters(limit: number, offset: number): Promise<Rec
   return result.rows;
 }
 
-export async function getRecruiterById(id: number): Promise<Recruiter | null> {
+export async function getRecruiterById(id: string): Promise<Recruiter | null> {
   const result = await db.query<Recruiter>(
     `SELECT ${RECRUITER_COLUMNS} FROM recruiters WHERE id = $1`,
     [id],
@@ -55,7 +55,7 @@ export async function getRecruiterById(id: number): Promise<Recruiter | null> {
 }
 
 export async function updateRecruiter(
-  id: number,
+  id: string,
   data: Partial<CreateRecruiterInput>,
 ): Promise<Recruiter | null> {
   const { setClause, values } = buildUpdateClause(
@@ -71,7 +71,7 @@ export async function updateRecruiter(
   return result.rows[0] ?? null;
 }
 
-export async function deleteRecruiter(id: number): Promise<boolean> {
+export async function deleteRecruiter(id: string): Promise<boolean> {
   const result = await db.query("DELETE FROM recruiters WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

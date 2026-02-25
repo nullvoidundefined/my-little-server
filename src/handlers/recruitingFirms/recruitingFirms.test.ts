@@ -2,6 +2,7 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { TEST_UUID } from "../../test-utils/uuids.js";
 import * as recruitingFirmsRepo from "../../repositories/recruitingFirms.js";
 import type { RecruitingFirm } from "../../types/recruitingFirm.js";
 
@@ -29,7 +30,7 @@ describe("recruitingFirms handlers", () => {
     it("returns 200 with firms from repo", async () => {
       const rows = [
         {
-          id: 1,
+          id: TEST_UUID,
           name: "Acme",
           website: null,
           linkedin_url: null,
@@ -65,7 +66,7 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 200 when found", async () => {
       const row = {
-        id: 1,
+        id: TEST_UUID,
         name: "Acme",
         website: "https://acme.com",
         linkedin_url: null,
@@ -76,20 +77,20 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockResolvedValueOnce(
         row as unknown as RecruitingFirm,
       );
-      const res = await request(app).get("/recruiting-firms/1");
+      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(200);
       expect(res.body.name).toBe("Acme");
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockResolvedValueOnce(null);
-      const res = await request(app).get("/recruiting-firms/999");
+      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).get("/recruiting-firms/1");
+      const res = await request(app).get(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to fetch recruiting firm");
     });
@@ -98,7 +99,7 @@ describe("recruitingFirms handlers", () => {
   describe("createRecruitingFirm", () => {
     it("returns 201 with created firm", async () => {
       const created = {
-        id: 1,
+        id: TEST_UUID,
         name: "Acme",
         website: null,
         linkedin_url: null,
@@ -135,7 +136,7 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 200 when updated", async () => {
       const updated = {
-        id: 1,
+        id: TEST_UUID,
         name: "Acme Recruiting",
         website: null,
         linkedin_url: null,
@@ -146,19 +147,19 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(
         updated as unknown as RecruitingFirm,
       );
-      const res = await request(app).patch("/recruiting-firms/1").send({ name: "Acme Recruiting" });
+      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "Acme Recruiting" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(null);
-      const res = await request(app).patch("/recruiting-firms/999").send({ name: "X" });
+      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "X" });
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).patch("/recruiting-firms/1").send({ name: "Acme Recruiting" });
+      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "Acme Recruiting" });
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to update recruiting firm");
     });
@@ -172,19 +173,19 @@ describe("recruitingFirms handlers", () => {
     });
     it("returns 204 when deleted", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(true);
-      const res = await request(app).delete("/recruiting-firms/1");
+      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(204);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(false);
-      const res = await request(app).delete("/recruiting-firms/999");
+      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(404);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).delete("/recruiting-firms/1");
+      const res = await request(app).delete(`/recruiting-firms/${TEST_UUID}`);
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to delete recruiting firm");
     });

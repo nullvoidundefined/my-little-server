@@ -36,7 +36,7 @@ export async function listRecruitingFirms(
   return result.rows;
 }
 
-export async function getRecruitingFirmById(id: number): Promise<RecruitingFirm | null> {
+export async function getRecruitingFirmById(id: string): Promise<RecruitingFirm | null> {
   const result = await db.query<RecruitingFirm>(
     `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms WHERE id = $1`,
     [id],
@@ -45,7 +45,7 @@ export async function getRecruitingFirmById(id: number): Promise<RecruitingFirm 
 }
 
 export async function updateRecruitingFirm(
-  id: number,
+  id: string,
   data: Partial<CreateRecruitingFirmInput>,
 ): Promise<RecruitingFirm | null> {
   const { setClause, values } = buildUpdateClause(
@@ -61,7 +61,7 @@ export async function updateRecruitingFirm(
   return result.rows[0] ?? null;
 }
 
-export async function deleteRecruitingFirm(id: number): Promise<boolean> {
+export async function deleteRecruitingFirm(id: string): Promise<boolean> {
   const result = await db.query("DELETE FROM recruiting_firms WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

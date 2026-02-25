@@ -17,7 +17,7 @@ export const patchJobSchema = createJobSchema
   });
 
 export const jobSchema = createJobSchema.extend({
-  id: z.number(),
+  id: z.string().uuid("Invalid ID format"),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date().nullable(),
 });

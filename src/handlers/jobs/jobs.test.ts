@@ -2,6 +2,7 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { TEST_UUID } from "../../test-utils/uuids.js";
 import * as jobsRepo from "../../repositories/jobs.js";
 import type { Job } from "../../types/job.js";
 
@@ -29,7 +30,7 @@ describe("jobs handlers", () => {
     it("returns 200 with jobs from repo", async () => {
       const rows = [
         {
-          id: 1,
+          id: TEST_UUID,
           company: "Acme",
           role: "Engineer",
           status: "applied",
@@ -71,7 +72,7 @@ describe("jobs handlers", () => {
 
     it("returns 200 with job when found", async () => {
       const row = {
-        id: 1,
+        id: TEST_UUID,
         company: "Acme",
         role: "Engineer",
         status: "applied",
@@ -82,17 +83,17 @@ describe("jobs handlers", () => {
       };
       vi.mocked(jobsRepo.getJobById).mockResolvedValueOnce(row as unknown as Job);
 
-      const res = await request(app).get("/jobs/1");
+      const res = await request(app).get(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(200);
-      expect(res.body).toMatchObject({ id: 1, company: "Acme" });
-      expect(jobsRepo.getJobById).toHaveBeenCalledWith(1);
+      expect(res.body).toMatchObject({ id: TEST_UUID, company: "Acme" });
+      expect(jobsRepo.getJobById).toHaveBeenCalledWith(TEST_UUID);
     });
 
     it("returns 404 when not found", async () => {
       vi.mocked(jobsRepo.getJobById).mockResolvedValueOnce(null);
 
-      const res = await request(app).get("/jobs/999");
+      const res = await request(app).get(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(404);
       expect(res.body.error.message).toBe("Job not found");
@@ -101,7 +102,7 @@ describe("jobs handlers", () => {
     it("returns 500 when repo throws", async () => {
       vi.mocked(jobsRepo.getJobById).mockRejectedValueOnce(new Error("DB error"));
 
-      const res = await request(app).get("/jobs/1");
+      const res = await request(app).get(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to fetch job");
@@ -111,7 +112,7 @@ describe("jobs handlers", () => {
   describe("createJob", () => {
     it("returns 201 with created job", async () => {
       const created = {
-        id: 1,
+        id: TEST_UUID,
         company: "Acme",
         role: "Engineer",
         status: "applied",
@@ -158,7 +159,7 @@ describe("jobs handlers", () => {
 
     it("returns 200 with updated job", async () => {
       const updated = {
-        id: 1,
+        id: TEST_UUID,
         company: "Acme",
         role: "Engineer",
         status: "interviewing",
@@ -169,17 +170,17 @@ describe("jobs handlers", () => {
       };
       vi.mocked(jobsRepo.updateJob).mockResolvedValueOnce(updated as unknown as Job);
 
-      const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+      const res = await request(app).patch(`/jobs/${TEST_UUID}`).send({ status: "interviewing" });
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe("interviewing");
-      expect(jobsRepo.updateJob).toHaveBeenCalledWith(1, { status: "interviewing" });
+      expect(jobsRepo.updateJob).toHaveBeenCalledWith(TEST_UUID, { status: "interviewing" });
     });
 
     it("returns 404 when not found", async () => {
       vi.mocked(jobsRepo.updateJob).mockResolvedValueOnce(null);
 
-      const res = await request(app).patch("/jobs/999").send({ status: "applied" });
+      const res = await request(app).patch(`/jobs/${TEST_UUID}`).send({ status: "applied" });
 
       expect(res.status).toBe(404);
       expect(res.body.error.message).toBe("Job not found");
@@ -188,14 +189,14 @@ describe("jobs handlers", () => {
     it("returns 500 when repo throws", async () => {
       vi.mocked(jobsRepo.updateJob).mockRejectedValueOnce(new Error("DB error"));
 
-      const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+      const res = await request(app).patch(`/jobs/${TEST_UUID}`).send({ status: "interviewing" });
 
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to update job");
     });
 
     it("returns 400 when body invalid", async () => {
-      const res = await request(app).patch("/jobs/1").send({ company: "" });
+      const res = await request(app).patch(`/jobs/${TEST_UUID}`).send({ company: "" });
       expect(res.status).toBe(400);
       expect(jobsRepo.updateJob).not.toHaveBeenCalled();
     });
@@ -211,16 +212,16 @@ describe("jobs handlers", () => {
     it("returns 204 when deleted", async () => {
       vi.mocked(jobsRepo.deleteJob).mockResolvedValueOnce(true);
 
-      const res = await request(app).delete("/jobs/1");
+      const res = await request(app).delete(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(204);
-      expect(jobsRepo.deleteJob).toHaveBeenCalledWith(1);
+      expect(jobsRepo.deleteJob).toHaveBeenCalledWith(TEST_UUID);
     });
 
     it("returns 404 when not found", async () => {
       vi.mocked(jobsRepo.deleteJob).mockResolvedValueOnce(false);
 
-      const res = await request(app).delete("/jobs/999");
+      const res = await request(app).delete(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(404);
       expect(res.body.error.message).toBe("Job not found");
@@ -229,7 +230,7 @@ describe("jobs handlers", () => {
     it("returns 500 when repo throws", async () => {
       vi.mocked(jobsRepo.deleteJob).mockRejectedValueOnce(new Error("DB error"));
 
-      const res = await request(app).delete("/jobs/1");
+      const res = await request(app).delete(`/jobs/${TEST_UUID}`);
 
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to delete job");

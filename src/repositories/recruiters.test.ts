@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../db/pool.js";
+import { TEST_UUID, TEST_UUID_2 } from "../test-utils/uuids.js";
 
 import * as recruitersRepo from "./recruiters.js";
 
@@ -17,13 +18,13 @@ describe("recruiters repository", () => {
 
   it("createRecruiter inserts and returns row", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Jane",
       email: "jane@example.com",
       phone: null,
       title: null,
       linkedin_url: null,
-      firm_id: null,
+      firm_id: null as string | null,
       notes: null,
       created_at: new Date(),
       updated_at: new Date(),
@@ -45,13 +46,13 @@ describe("recruiters repository", () => {
 
   it("createRecruiter passes null for optional fields", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Jane",
       email: "jane@example.com",
       phone: "555-1234",
       title: "Lead",
       linkedin_url: "https://linkedin.com/jane",
-      firm_id: 1,
+      firm_id: TEST_UUID,
       notes: "notes",
       created_at: new Date(),
       updated_at: new Date(),
@@ -63,7 +64,7 @@ describe("recruiters repository", () => {
       phone: "555-1234",
       title: "Lead",
       linkedin_url: "https://linkedin.com/jane",
-      firm_id: 1,
+      firm_id: TEST_UUID,
       notes: "notes",
     });
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), [
@@ -72,7 +73,7 @@ describe("recruiters repository", () => {
       "555-1234",
       "Lead",
       "https://linkedin.com/jane",
-      1,
+      TEST_UUID,
       "notes",
     ]);
   });
@@ -91,24 +92,24 @@ describe("recruiters repository", () => {
 
   it("getRecruiterById returns row when found", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Jane",
       email: "jane@example.com",
       phone: null,
       title: null,
       linkedin_url: null,
-      firm_id: null,
+      firm_id: null as string | null,
       notes: null,
       created_at: new Date(),
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitersRepo.getRecruiterById(1);
+    const result = await recruitersRepo.getRecruiterById(TEST_UUID);
     expect(result).toEqual(row);
   });
 
   it("updateRecruiter throws when no fields provided", async () => {
-    await expect(recruitersRepo.updateRecruiter(1, {})).rejects.toThrow(
+    await expect(recruitersRepo.updateRecruiter(TEST_UUID, {})).rejects.toThrow(
       "At least one field required for update",
     );
     expect(mockQuery).not.toHaveBeenCalled();
@@ -116,25 +117,25 @@ describe("recruiters repository", () => {
 
   it("updateRecruiter returns row when updated", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Jane Doe",
       email: "jane@example.com",
       phone: null,
       title: null,
       linkedin_url: null,
-      firm_id: null,
+      firm_id: null as string | null,
       notes: null,
       created_at: new Date(),
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitersRepo.updateRecruiter(1, { name: "Jane Doe" });
+    const result = await recruitersRepo.updateRecruiter(TEST_UUID, { name: "Jane Doe" });
     expect(result).toEqual(row);
   });
 
   it("deleteRecruiter returns true when row deleted", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
-    const result = await recruitersRepo.deleteRecruiter(1);
+    const result = await recruitersRepo.deleteRecruiter(TEST_UUID);
     expect(result).toBe(true);
   });
 
@@ -146,13 +147,13 @@ describe("recruiters repository", () => {
 
   it("getRecruiterById returns null when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await recruitersRepo.getRecruiterById(999);
+    const result = await recruitersRepo.getRecruiterById(TEST_UUID);
     expect(result).toBeNull();
   });
 
   it("deleteRecruiter returns false when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 0 } as never);
-    const result = await recruitersRepo.deleteRecruiter(999);
+    const result = await recruitersRepo.deleteRecruiter(TEST_UUID);
     expect(result).toBe(false);
   });
 });

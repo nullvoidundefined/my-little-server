@@ -29,7 +29,7 @@ export async function findUserByEmail(
   return result.rows[0] ?? null;
 }
 
-export async function findUserById(id: number): Promise<User | null> {
+export async function findUserById(id: string): Promise<User | null> {
   const result = await db.query<User>(
     "SELECT id, email, created_at, updated_at FROM users WHERE id = $1",
     [id],
@@ -41,7 +41,7 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
   return bcrypt.compare(plain, hash);
 }
 
-export async function createSession(userId: number): Promise<string> {
+export async function createSession(userId: string): Promise<string> {
   const id = crypto.randomBytes(32).toString("hex");
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
   await db.query("INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)", [
@@ -69,6 +69,6 @@ export async function deleteSession(sessionId: string): Promise<boolean> {
   return (result.rowCount ?? 0) > 0;
 }
 
-export async function deleteSessionsForUser(userId: number): Promise<void> {
+export async function deleteSessionsForUser(userId: string): Promise<void> {
   await db.query("DELETE FROM sessions WHERE user_id = $1", [userId]);
 }

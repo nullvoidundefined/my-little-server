@@ -2,6 +2,7 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 
+import { TEST_UUID } from "../test-utils/uuids.js";
 import { jobsRouter } from "./jobs.js";
 
 vi.mock("../handlers/jobs/jobs.js", () => ({
@@ -33,10 +34,10 @@ describe("jobsRouter", () => {
   });
 
   it("routes GET /jobs/:id to getJob", async () => {
-    const res = await request(app).get("/jobs/123");
+    const res = await request(app).get(`/jobs/${TEST_UUID}`);
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ route: "getJob", id: "123" });
+    expect(res.body).toEqual({ route: "getJob", id: TEST_UUID });
   });
 
   it("routes POST /jobs to createJob", async () => {
@@ -47,14 +48,14 @@ describe("jobsRouter", () => {
   });
 
   it("routes PATCH /jobs/:id to updateJob", async () => {
-    const res = await request(app).patch("/jobs/123").send({ any: "payload" });
+    const res = await request(app).patch(`/jobs/${TEST_UUID}`).send({ any: "payload" });
 
     expect(res.status).toBe(200);
-    expect(res.body).toEqual({ route: "updateJob", id: "123" });
+    expect(res.body).toEqual({ route: "updateJob", id: TEST_UUID });
   });
 
   it("routes DELETE /jobs/:id to deleteJob", async () => {
-    const res = await request(app).delete("/jobs/456");
+    const res = await request(app).delete(`/jobs/${TEST_UUID}`);
 
     expect(res.status).toBe(204);
     expect(res.body).toEqual({});

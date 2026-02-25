@@ -4,6 +4,7 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "../../constants/session.js";
+import { TEST_UUID } from "../../test-utils/uuids.js";
 import * as authRepo from "../../repositories/auth.js";
 import type { User } from "../../schemas/auth.js";
 
@@ -23,7 +24,7 @@ app.post("/logout", authHandlers.logout);
 app.get("/me", (req, res, next) => {
   if (req.headers["x-test-user"] === "1") {
     req.user = {
-      id: 1,
+      id: TEST_UUID,
       email: "user@example.com",
       created_at: new Date("2025-01-01"),
       updated_at: null,
@@ -33,7 +34,7 @@ app.get("/me", (req, res, next) => {
 }, authHandlers.me);
 
 const mockUser: User & { password_hash: string } = {
-  id: 1,
+  id: TEST_UUID,
   email: "user@example.com",
   password_hash: "hashed",
   created_at: new Date("2025-01-01"),
@@ -62,17 +63,16 @@ describe("auth handlers", () => {
 
       expect(res.status).toBe(201);
       expect(res.body.user).toEqual({
-        id: 1,
+        id: TEST_UUID,
         email: "user@example.com",
         created_at: "2025-01-01T00:00:00.000Z",
       });
       expect(res.headers["set-cookie"]).toBeDefined();
       expect(authRepo.createUser).toHaveBeenCalledWith("user@example.com", "password123");
-      expect(authRepo.createSession).toHaveBeenCalledWith(1);
+      expect(authRepo.createSession).toHaveBeenCalledWith(TEST_UUID);
     });
     it("returns 409 on unique violation (23505)", async () => {
-      const err = new Error("duplicate key");
-      (err as { code: string }).code = "23505";
+      const err = Object.assign(new Error("duplicate key"), { code: "23505" });
       vi.mocked(authRepo.createUser).mockRejectedValueOnce(err);
 
       const res = await request(app)
@@ -133,13 +133,13 @@ describe("auth handlers", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.user).toEqual({
-        id: 1,
+        id: TEST_UUID,
         email: "user@example.com",
         created_at: "2025-01-01T00:00:00.000Z",
       });
       expect(res.headers["set-cookie"]).toBeDefined();
-      expect(authRepo.deleteSessionsForUser).toHaveBeenCalledWith(1);
-      expect(authRepo.createSession).toHaveBeenCalledWith(1);
+      expect(authRepo.deleteSessionsForUser).toHaveBeenCalledWith(TEST_UUID);
+      expect(authRepo.createSession).toHaveBeenCalledWith(TEST_UUID);
     });
     it("returns 500 when repo throws", async () => {
       vi.mocked(authRepo.findUserByEmail).mockRejectedValueOnce(new Error("DB error"));
@@ -181,7 +181,7 @@ describe("auth handlers", () => {
       const res = await request(app).get("/me").set("x-test-user", "1");
       expect(res.status).toBe(200);
       expect(res.body.user).toEqual({
-        id: 1,
+        id: TEST_UUID,
         email: "user@example.com",
         created_at: "2025-01-01T00:00:00.000Z",
         updated_at: null,

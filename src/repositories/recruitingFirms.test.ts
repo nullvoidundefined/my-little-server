@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import db from "../db/pool.js";
+import { TEST_UUID } from "../test-utils/uuids.js";
 
 import * as recruitingFirmsRepo from "./recruitingFirms.js";
 
@@ -17,7 +18,7 @@ describe("recruitingFirms repository", () => {
 
   it("createRecruitingFirm inserts and returns row", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Acme",
       website: null,
       linkedin_url: null,
@@ -39,7 +40,7 @@ describe("recruitingFirms repository", () => {
 
   it("createRecruitingFirm passes null for optional fields", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Acme",
       website: "https://acme.com",
       linkedin_url: "https://linkedin.com/acme",
@@ -76,7 +77,7 @@ describe("recruitingFirms repository", () => {
 
   it("getRecruitingFirmById returns row when found", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Acme",
       website: null,
       linkedin_url: null,
@@ -85,12 +86,12 @@ describe("recruitingFirms repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitingFirmsRepo.getRecruitingFirmById(1);
+    const result = await recruitingFirmsRepo.getRecruitingFirmById(TEST_UUID);
     expect(result).toEqual(row);
   });
 
   it("updateRecruitingFirm throws when no fields provided", async () => {
-    await expect(recruitingFirmsRepo.updateRecruitingFirm(1, {})).rejects.toThrow(
+    await expect(recruitingFirmsRepo.updateRecruitingFirm(TEST_UUID, {})).rejects.toThrow(
       "At least one field required for update",
     );
     expect(mockQuery).not.toHaveBeenCalled();
@@ -98,7 +99,7 @@ describe("recruitingFirms repository", () => {
 
   it("updateRecruitingFirm returns row when updated", async () => {
     const row = {
-      id: 1,
+      id: TEST_UUID,
       name: "Acme Recruiting",
       website: null,
       linkedin_url: null,
@@ -107,13 +108,15 @@ describe("recruitingFirms repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitingFirmsRepo.updateRecruitingFirm(1, { name: "Acme Recruiting" });
+    const result = await recruitingFirmsRepo.updateRecruitingFirm(TEST_UUID, {
+      name: "Acme Recruiting",
+    });
     expect(result).toEqual(row);
   });
 
   it("deleteRecruitingFirm returns true when row deleted", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
-    const result = await recruitingFirmsRepo.deleteRecruitingFirm(1);
+    const result = await recruitingFirmsRepo.deleteRecruitingFirm(TEST_UUID);
     expect(result).toBe(true);
   });
 
@@ -125,13 +128,13 @@ describe("recruitingFirms repository", () => {
 
   it("getRecruitingFirmById returns null when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await recruitingFirmsRepo.getRecruitingFirmById(999);
+    const result = await recruitingFirmsRepo.getRecruitingFirmById(TEST_UUID);
     expect(result).toBeNull();
   });
 
   it("deleteRecruitingFirm returns false when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 0 } as never);
-    const result = await recruitingFirmsRepo.deleteRecruitingFirm(999);
+    const result = await recruitingFirmsRepo.deleteRecruitingFirm(TEST_UUID);
     expect(result).toBe(false);
   });
 });

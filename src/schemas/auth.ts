@@ -10,8 +10,10 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
+const uuidSchema = z.string().uuid("Invalid ID format");
+
 export const userSchema = z.object({
-  id: z.number(),
+  id: uuidSchema,
   email: z.string().email(),
   created_at: z.coerce.date(),
   updated_at: z.coerce.date().nullable(),
