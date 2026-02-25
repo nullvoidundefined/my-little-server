@@ -9,8 +9,7 @@ export function errorHandler(
   err: unknown,
   req: Request,
   res: Response,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  next: NextFunction,
+  _next: NextFunction,
 ) {
   const status = 500;
   const isProd = process.env.NODE_ENV === "production";
