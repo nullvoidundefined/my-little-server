@@ -20,7 +20,6 @@ export default defineConfig({
         "**/*.test.ts",
         "src/index.ts",
         "src/constants/**",
-        "src/test-utils/mockLogger.ts",
       ],
       provider: "v8",
       reporter: ["text", "lcov"],
