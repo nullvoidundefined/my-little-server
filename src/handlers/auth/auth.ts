@@ -32,8 +32,7 @@ export async function register(req: Request, res: Response): Promise<void> {
       res.status(409).json({ error: { message: "Email already registered" } });
       return;
     }
-    logger.error({ err }, "Failed to register");
-    res.status(500).json({ error: { message: "Registration failed" } });
+    throw err;
   }
 }
 
@@ -45,25 +44,20 @@ export async function login(req: Request, res: Response): Promise<void> {
     return;
   }
   const { email, password } = parsed.data;
-  try {
-    const user = await authRepo.findUserByEmail(email);
-    if (!user) {
-      res.status(401).json({ error: { message: "Invalid email or password" } });
-      return;
-    }
-    const valid = await authRepo.verifyPassword(password, user.password_hash);
-    if (!valid) {
-      res.status(401).json({ error: { message: "Invalid email or password" } });
-      return;
-    }
-    await authRepo.deleteSessionsForUser(user.id);
-    const sessionId = await authRepo.createSession(user.id);
-    res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
-    res.json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
-  } catch (err) {
-    logger.error({ err }, "Failed to login");
-    res.status(500).json({ error: { message: "Login failed" } });
+  const user = await authRepo.findUserByEmail(email);
+  if (!user) {
+    res.status(401).json({ error: { message: "Invalid email or password" } });
+    return;
   }
+  const valid = await authRepo.verifyPassword(password, user.password_hash);
+  if (!valid) {
+    res.status(401).json({ error: { message: "Invalid email or password" } });
+    return;
+  }
+  await authRepo.deleteSessionsForUser(user.id);
+  const sessionId = await authRepo.createSession(user.id);
+  res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
+  res.json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
 }
 
 export async function logout(req: Request, res: Response): Promise<void> {
