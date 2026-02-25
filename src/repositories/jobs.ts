@@ -2,6 +2,7 @@ import db from "../database/utilities/connectionPool/connectionPool.js";
 import type { CreateJobInput, Job } from "../types/job.js";
 import { buildUpdateClause } from "../utils/buildUpdateClause.js";
 
+/** No user_id — single-user app; all data is shared. See README. */
 const JOB_COLUMNS = "id, company, role, status, applied_date, notes, created_at, updated_at";
 const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
 

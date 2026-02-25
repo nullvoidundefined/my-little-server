@@ -2,6 +2,8 @@
 
 REST API for tracking jobs, recruiters, and recruiting firms. Built with Express, TypeScript, and PostgreSQL.
 
+**Data model:** This is a **single-user** app. The jobs, recruiters, and recruiting_firms tables have no `user_id` column; there is no per-user data isolation. All authenticated users share the same data. If you need multi-tenant isolation, add `user_id` to those tables and scope all queries by it.
+
 ## Prerequisites
 
 - Node.js 22+
