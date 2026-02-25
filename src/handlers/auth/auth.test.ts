@@ -12,7 +12,7 @@ import type { User } from "app/schemas/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
 vi.mock("app/repositories/auth/auth.js");
-vi.mock("app/config/loggerConfig.js", () => ({
+vi.mock("app/utils/logs/logger.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 

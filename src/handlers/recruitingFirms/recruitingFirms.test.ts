@@ -9,7 +9,7 @@ import { expectError, expectListResponse } from "app/utils/tests/responseHelpers
 import { uuid } from "app/utils/tests/uuids.js";
 
 vi.mock("app/repositories/recruitingFirms/recruitingFirms.js");
-vi.mock("app/config/loggerConfig.js", () => ({
+vi.mock("app/utils/logs/logger.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 

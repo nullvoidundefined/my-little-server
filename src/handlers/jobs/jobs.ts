@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 import type { ZodIssue } from "zod";
 
-import { logger } from "app/config/loggerConfig.js";
 import * as jobsRepo from "app/repositories/jobs/jobs.js";
 import { createJobSchema, patchJobSchema } from "app/schemas/jobs.js";
+import { logger } from "app/utils/logs/logger.js";
 import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
 import { parsePagination } from "app/utils/parsers/parsePagination.js";
 

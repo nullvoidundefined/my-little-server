@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import { logger } from "app/config/loggerConfig.js";
 import { SESSION_COOKIE_NAME, SESSION_TTL_MS } from "app/constants/session.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import { loginSchema, registerSchema } from "app/schemas/auth.js";
+import { logger } from "app/utils/logs/logger.js";
 
 const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,

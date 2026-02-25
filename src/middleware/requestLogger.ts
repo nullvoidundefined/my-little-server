@@ -1,29 +1,10 @@
 import { randomUUID } from "crypto";
 
-import pino from "pino";
 import { pinoHttp } from "pino-http";
 
-const isProd = process.env.NODE_ENV === "production";
+import { logger } from "app/utils/logs/logger.js";
 
-export const logger = pino({
-  level: isProd ? "info" : "debug",
-  // base structured JSON logs in all environments
-  ...(isProd
-    ? {}
-    : {
-        // pretty-print only in development
-        transport: {
-          target: "pino-pretty",
-          options: {
-            colorize: true,
-            translateTime: "SYS:standard",
-            ignore: "pid,hostname",
-          },
-        },
-      }),
-});
-
-export const httpLogger = pinoHttp({
+export const requestLogger = pinoHttp({
   logger,
   genReqId(req, res) {
     const header = req.headers["x-request-id"];

@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 
-import { logger } from "app/config/loggerConfig.js";
 import * as recruitersRepo from "app/repositories/recruiters/recruiters.js";
 import { createRecruiterSchema, patchRecruiterSchema } from "app/schemas/recruiters.js";
+import { logger } from "app/utils/logs/logger.js";
 import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
 import { parsePagination } from "app/utils/parsers/parsePagination.js";
 

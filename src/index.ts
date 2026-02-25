@@ -7,17 +7,18 @@ import express from "express";
 import helmet from "helmet";
 
 import { corsConfig } from "app/config/corsConfig.js";
-import { httpLogger, logger } from "app/config/loggerConfig.js";
 import pool, { query } from "app/db/pool.js";
 import { csrfGuard } from "app/middleware/csrfGuard.js";
 import { errorHandler } from "app/middleware/errorHandler.js";
 import { notFoundHandler } from "app/middleware/notFoundHandler.js";
 import { rateLimiter } from "app/middleware/rateLimiter.js";
+import { requestLogger } from "app/middleware/requestLogger.js";
 import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
 import { authRouter } from "app/routes/auth.js";
 import { jobsRouter } from "app/routes/jobs.js";
 import { recruitersRouter } from "app/routes/recruiters.js";
 import { recruitingFirmsRouter } from "app/routes/recruitingFirms.js";
+import { logger } from "app/utils/logs/logger.js";
 
 function validateEnv(): void {
   if (!process.env.DATABASE_URL) {
@@ -40,7 +41,7 @@ app.use(helmet());
 app.use(corsConfig);
 
 // Attach structured request/response logging (with request IDs) early so all downstream handlers are observable.
-app.use(httpLogger);
+app.use(requestLogger);
 
 // Apply a basic rate limiter to protect the API from simple abuse and accidental client floods.
 app.use(rateLimiter);
