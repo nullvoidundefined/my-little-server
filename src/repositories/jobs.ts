@@ -5,6 +5,7 @@ import { buildUpdateClause } from "../utils/buildUpdateClause.js";
 /** No user_id — single-user app; all data is shared. See README. */
 const JOB_COLUMNS = "id, company, role, status, applied_date, notes, created_at, updated_at";
 const PATCH_FIELDS = ["company", "role", "status", "applied_date", "notes"] as const;
+type JobPatchPayload = Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>;
 
 export async function createJob(data: CreateJobInput): Promise<Job> {
   const { company, role, status, applied_date, notes } = data;
@@ -35,11 +36,8 @@ export async function getJobById(id: number): Promise<Job | null> {
   return result.rows[0] ?? null;
 }
 
-export async function updateJob(id: number, data: Partial<CreateJobInput>): Promise<Job | null> {
-  const { setClause, values } = buildUpdateClause(
-    PATCH_FIELDS,
-    data as Partial<Record<(typeof PATCH_FIELDS)[number], string | number | null>>,
-  );
+export async function updateJob(id: number, data: JobPatchPayload): Promise<Job | null> {
+  const { setClause, values } = buildUpdateClause(PATCH_FIELDS, data);
   if (values.length === 0) throw new Error("At least one field required for update");
   values.push(id);
   const result = await db.query<Job>(
