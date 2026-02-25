@@ -7,8 +7,8 @@ import {
   createRecruitingFirmSchema,
   patchRecruitingFirmSchema,
 } from "app/schemas/recruitingFirms.js";
-import { parseIdParam } from "app/utils/parseIdParam.js";
-import { parsePagination } from "app/utils/parsePagination.js";
+import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
+import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listRecruitingFirms(req: Request, res: Response): Promise<void> {
   try {

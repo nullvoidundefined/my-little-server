@@ -1,6 +1,6 @@
+import { buildUpdateClause } from "app/db/buildUpdateClause.js";
 import db from "app/db/pool.js";
 import type { CreateRecruiterInput, Recruiter } from "app/types/recruiter.js";
-import { buildUpdateClause } from "app/utils/buildUpdateClause.js";
 
 const RECRUITER_COLUMNS =
   "id, name, email, phone, title, linkedin_url, firm_id, notes, created_at, updated_at";

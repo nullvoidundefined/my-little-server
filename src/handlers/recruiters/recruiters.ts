@@ -3,8 +3,8 @@ import type { Request, Response } from "express";
 import { logger } from "app/config/loggerConfig.js";
 import * as recruitersRepo from "app/repositories/recruiters/recruiters.js";
 import { createRecruiterSchema, patchRecruiterSchema } from "app/schemas/recruiters.js";
-import { parseIdParam } from "app/utils/parseIdParam.js";
-import { parsePagination } from "app/utils/parsePagination.js";
+import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
+import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listRecruiters(req: Request, res: Response): Promise<void> {
   try {

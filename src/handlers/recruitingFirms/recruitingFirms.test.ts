@@ -4,9 +4,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as recruitingFirmsHandlers from "app/handlers/recruitingFirms/recruitingFirms.js";
 import * as recruitingFirmsRepo from "app/repositories/recruitingFirms/recruitingFirms.js";
-import { expectError, expectListResponse } from "app/test-utils/responseHelpers.js";
-import { uuid } from "app/test-utils/uuids.js";
 import type { RecruitingFirm } from "app/types/recruitingFirm.js";
+import { expectError, expectListResponse } from "app/utils/tests/responseHelpers.js";
+import { uuid } from "app/utils/tests/uuids.js";
 
 vi.mock("app/repositories/recruitingFirms/recruitingFirms.js");
 vi.mock("app/config/loggerConfig.js", () => ({

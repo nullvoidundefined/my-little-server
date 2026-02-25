@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseIdParam } from "app/utils/parseIdParam.js";
+import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
 
 describe("parseIdParam", () => {
   it("returns UUID string for valid UUID", () => {

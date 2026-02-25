@@ -10,7 +10,7 @@ import { authRouter } from "app/routes/auth.js";
 import { jobsRouter } from "app/routes/jobs.js";
 import { recruitersRouter } from "app/routes/recruiters.js";
 import { recruitingFirmsRouter } from "app/routes/recruitingFirms.js";
-import { uuid } from "app/test-utils/uuids.js";
+import { uuid } from "app/utils/tests/uuids.js";
 
 vi.mock("app/handlers/auth/auth.js", () => ({
   register: (_: express.Request, res: express.Response) => res.status(201).json({ ok: true }),

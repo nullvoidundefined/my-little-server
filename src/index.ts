@@ -7,14 +7,14 @@ import { corsConfig } from "app/config/corsConfig.js";
 import { httpLogger, logger } from "app/config/loggerConfig.js";
 import db from "app/db/pool.js";
 import { csrfGuard } from "app/middleware/csrfGuard.js";
+import { errorHandler } from "app/middleware/errorHandler.js";
+import { notFoundHandler } from "app/middleware/notFoundHandler.js";
+import { rateLimiter } from "app/middleware/rateLimiter.js";
 import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
 import { authRouter } from "app/routes/auth.js";
 import { jobsRouter } from "app/routes/jobs.js";
 import { recruitersRouter } from "app/routes/recruiters.js";
 import { recruitingFirmsRouter } from "app/routes/recruitingFirms.js";
-import { errorHandler } from "app/utils/errorHandler.js";
-import { notFoundHandler } from "app/utils/notFoundHandler.js";
-import { rateLimiter } from "app/utils/rateLimiter.js";
 
 function validateEnv(): void {
   if (!process.env.DATABASE_URL) {

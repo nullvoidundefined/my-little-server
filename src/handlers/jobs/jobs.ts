@@ -4,8 +4,8 @@ import type { ZodIssue } from "zod";
 import { logger } from "app/config/loggerConfig.js";
 import * as jobsRepo from "app/repositories/jobs/jobs.js";
 import { createJobSchema, patchJobSchema } from "app/schemas/jobs.js";
-import { parseIdParam } from "app/utils/parseIdParam.js";
-import { parsePagination } from "app/utils/parsePagination.js";
+import { parseIdParam } from "app/utils/parsers/parseIdParam.js";
+import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listJobs(req: Request, res: Response): Promise<void> {
   try {

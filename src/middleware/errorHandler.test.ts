@@ -2,7 +2,7 @@ import express, { type NextFunction, type Request, type Response } from "express
 import request from "supertest";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { errorHandler } from "app/utils/errorHandler.js";
+import { errorHandler } from "app/middleware/errorHandler.js";
 
 vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn() },
