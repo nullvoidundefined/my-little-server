@@ -183,9 +183,7 @@ describe("recruiters handlers", () => {
       const err = new Error("foreign key violation");
       (err as Error & { code: string }).code = "23503";
       vi.mocked(recruitersRepo.updateRecruiter).mockRejectedValueOnce(err);
-      const res = await request(app)
-        .patch(`/recruiters/${id}`)
-        .send({ firm_id: firmId });
+      const res = await request(app).patch(`/recruiters/${id}`).send({ firm_id: firmId });
       expect(res.status).toBe(400);
       expect(res.body.error.message).toBe("Firm not found");
     });
