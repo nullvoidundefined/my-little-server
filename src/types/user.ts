@@ -1,1 +1,1 @@
-export type { User } from "../schemas/auth.js";
+export type { User } from "app/schemas/auth.js";

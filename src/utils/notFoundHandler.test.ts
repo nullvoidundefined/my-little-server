@@ -2,7 +2,7 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 
-import { notFoundHandler } from "./notFoundHandler.js";
+import { notFoundHandler } from "app/utils/notFoundHandler.js";
 
 const app = express();
 app.use(notFoundHandler);

@@ -3,7 +3,18 @@ import cookieParser from "cookie-parser";
 import express from "express";
 import helmet from "helmet";
 
-import { corsConfig } from "./config/corsConfig.js";
+import { corsConfig } from "app/config/corsConfig.js";
+import { httpLogger, logger } from "app/config/loggerConfig.js";
+import db from "app/db/pool.js";
+import { csrfGuard } from "app/middleware/csrfGuard.js";
+import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
+import { authRouter } from "app/routes/auth.js";
+import { jobsRouter } from "app/routes/jobs.js";
+import { recruitersRouter } from "app/routes/recruiters.js";
+import { recruitingFirmsRouter } from "app/routes/recruitingFirms.js";
+import { errorHandler } from "app/utils/errorHandler.js";
+import { notFoundHandler } from "app/utils/notFoundHandler.js";
+import { rateLimiter } from "app/utils/rateLimiter.js";
 
 function validateEnv(): void {
   if (!process.env.DATABASE_URL) {
@@ -16,18 +27,6 @@ function validateEnv(): void {
   }
 }
 validateEnv();
-
-import { httpLogger, logger } from "./config/loggerConfig.js";
-import db from "./db/pool.js";
-import { csrfGuard } from "./middleware/csrfGuard.js";
-import { loadSession, requireAuth } from "./middleware/requireAuth.js";
-import { authRouter } from "./routes/auth.js";
-import { jobsRouter } from "./routes/jobs.js";
-import { recruitersRouter } from "./routes/recruiters.js";
-import { recruitingFirmsRouter } from "./routes/recruitingFirms.js";
-import { errorHandler } from "./utils/errorHandler.js";
-import { notFoundHandler } from "./utils/notFoundHandler.js";
-import { rateLimiter } from "./utils/rateLimiter.js";
 
 const app = express();
 const REQUEST_TIMEOUT_MS = 30_000;

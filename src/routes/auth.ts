@@ -1,7 +1,7 @@
 import express from "express";
 
-import * as authHandlers from "../handlers/auth/auth.js";
-import { authRateLimiter } from "../utils/rateLimiter.js";
+import * as authHandlers from "app/handlers/auth/auth.js";
+import { authRateLimiter } from "app/utils/rateLimiter.js";
 
 const authRouter = express.Router();
 

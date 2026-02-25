@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 
-import { logger } from "../config/loggerConfig.js";
+import { logger } from "app/config/loggerConfig.js";
 
 // Centralized error handler to ensure all uncaught errors are logged once and surfaced with a safe JSON response.
 // The full error is only exposed in non-production environments to avoid leaking implementation details.

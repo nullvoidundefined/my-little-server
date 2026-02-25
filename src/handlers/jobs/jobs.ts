@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
 import type { ZodIssue } from "zod";
 
-import { logger } from "../../config/loggerConfig.js";
-import * as jobsRepo from "../../repositories/jobs.js";
-import { createJobSchema, patchJobSchema } from "../../schemas/jobs.js";
-import { parseIdParam } from "../../utils/parseIdParam.js";
-import { parsePagination } from "../../utils/parsePagination.js";
+import { logger } from "app/config/loggerConfig.js";
+import * as jobsRepo from "app/repositories/jobs.js";
+import { createJobSchema, patchJobSchema } from "app/schemas/jobs.js";
+import { parseIdParam } from "app/utils/parseIdParam.js";
+import { parsePagination } from "app/utils/parsePagination.js";
 
 export async function listJobs(req: Request, res: Response): Promise<void> {
   try {

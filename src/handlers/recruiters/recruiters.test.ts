@@ -2,14 +2,13 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TEST_UUID, TEST_UUID_2 } from "../../test-utils/uuids.js";
-import * as recruitersRepo from "../../repositories/recruiters.js";
-import type { Recruiter } from "../../types/recruiter.js";
+import * as recruitersHandlers from "app/handlers/recruiters/recruiters.js";
+import * as recruitersRepo from "app/repositories/recruiters.js";
+import { TEST_UUID, TEST_UUID_2 } from "app/test-utils/uuids.js";
+import type { Recruiter } from "app/types/recruiter.js";
 
-import * as recruitersHandlers from "./recruiters.js";
-
-vi.mock("../../repositories/recruiters.js");
-vi.mock("../../config/loggerConfig.js", () => ({
+vi.mock("app/repositories/recruiters.js");
+vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 

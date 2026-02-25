@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from "express";
 
-import { SESSION_COOKIE_NAME } from "../constants/session.js";
-import * as authRepo from "../repositories/auth.js";
+import { SESSION_COOKIE_NAME } from "app/constants/session.js";
+import * as authRepo from "app/repositories/auth.js";
 
 export async function loadSession(req: Request, res: Response, next: NextFunction): Promise<void> {
   const token = req.cookies?.[SESSION_COOKIE_NAME];

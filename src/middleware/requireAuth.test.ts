@@ -3,13 +3,12 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SESSION_COOKIE_NAME } from "../constants/session.js";
-import { TEST_UUID } from "../test-utils/uuids.js";
-import * as authRepo from "../repositories/auth.js";
+import { SESSION_COOKIE_NAME } from "app/constants/session.js";
+import { loadSession, requireAuth } from "app/middleware/requireAuth.js";
+import * as authRepo from "app/repositories/auth.js";
+import { TEST_UUID } from "app/test-utils/uuids.js";
 
-import { loadSession, requireAuth } from "./requireAuth.js";
-
-vi.mock("../repositories/auth.js");
+vi.mock("app/repositories/auth.js");
 
 const app = express();
 app.use(express.json());
@@ -68,5 +67,17 @@ describe("loadSession", () => {
 
     expect(res.status).toBe(401);
     expect(authRepo.getSessionWithUser).toHaveBeenCalledWith("expired-token");
+  });
+
+  it("calls next(err) when getSessionWithUser throws", async () => {
+    const dbError = new Error("connection refused");
+    vi.mocked(authRepo.getSessionWithUser).mockRejectedValueOnce(dbError);
+
+    const res = await request(app)
+      .get("/protected")
+      .set("Cookie", `${SESSION_COOKIE_NAME}=some-token`);
+
+    expect(res.status).toBe(500);
+    expect(authRepo.getSessionWithUser).toHaveBeenCalledWith("some-token");
   });
 });

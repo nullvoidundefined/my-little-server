@@ -1,6 +1,6 @@
-import db from "../db/pool.js";
-import type { CreateRecruitingFirmInput, RecruitingFirm } from "../types/recruitingFirm.js";
-import { buildUpdateClause } from "../utils/buildUpdateClause.js";
+import db from "app/db/pool.js";
+import type { CreateRecruitingFirmInput, RecruitingFirm } from "app/types/recruitingFirm.js";
+import { buildUpdateClause } from "app/utils/buildUpdateClause.js";
 
 const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at, updated_at";
 const PATCH_FIELDS = ["linkedin_url", "name", "notes", "website"] as const;

@@ -2,10 +2,10 @@ import express from "express";
 import request from "supertest";
 import { describe, expect, it, vi } from "vitest";
 
-import { TEST_UUID } from "../test-utils/uuids.js";
-import { recruitingFirmsRouter } from "./recruitingFirms.js";
+import { recruitingFirmsRouter } from "app/routes/recruitingFirms.js";
+import { TEST_UUID } from "app/test-utils/uuids.js";
 
-vi.mock("../handlers/recruitingFirms/recruitingFirms.js", () => ({
+vi.mock("app/handlers/recruitingFirms/recruitingFirms.js", () => ({
   listRecruitingFirms: vi.fn((_req: express.Request, res: express.Response) =>
     res.status(200).json({ route: "listRecruitingFirms" }),
   ),

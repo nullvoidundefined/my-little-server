@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parsePagination } from "./parsePagination.js";
+import { parsePagination } from "app/utils/parsePagination.js";
 
 describe("parsePagination", () => {
   it("returns default limit and offset when both undefined", () => {

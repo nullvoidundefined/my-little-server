@@ -2,14 +2,13 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { TEST_UUID } from "../../test-utils/uuids.js";
-import * as recruitingFirmsRepo from "../../repositories/recruitingFirms.js";
-import type { RecruitingFirm } from "../../types/recruitingFirm.js";
+import * as recruitingFirmsHandlers from "app/handlers/recruitingFirms/recruitingFirms.js";
+import * as recruitingFirmsRepo from "app/repositories/recruitingFirms.js";
+import { TEST_UUID } from "app/test-utils/uuids.js";
+import type { RecruitingFirm } from "app/types/recruitingFirm.js";
 
-import * as recruitingFirmsHandlers from "./recruitingFirms.js";
-
-vi.mock("../../repositories/recruitingFirms.js");
-vi.mock("../../config/loggerConfig.js", () => ({
+vi.mock("app/repositories/recruitingFirms.js");
+vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
@@ -147,7 +146,9 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(
         updated as unknown as RecruitingFirm,
       );
-      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "Acme Recruiting" });
+      const res = await request(app)
+        .patch(`/recruiting-firms/${TEST_UUID}`)
+        .send({ name: "Acme Recruiting" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
@@ -159,7 +160,9 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockRejectedValueOnce(
         new Error("DB error"),
       );
-      const res = await request(app).patch(`/recruiting-firms/${TEST_UUID}`).send({ name: "Acme Recruiting" });
+      const res = await request(app)
+        .patch(`/recruiting-firms/${TEST_UUID}`)
+        .send({ name: "Acme Recruiting" });
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to update recruiting firm");
     });

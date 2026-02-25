@@ -3,15 +3,14 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { SESSION_COOKIE_NAME } from "../../constants/session.js";
-import { TEST_UUID } from "../../test-utils/uuids.js";
-import * as authRepo from "../../repositories/auth.js";
-import type { User } from "../../schemas/auth.js";
+import { SESSION_COOKIE_NAME } from "app/constants/session.js";
+import * as authHandlers from "app/handlers/auth/auth.js";
+import * as authRepo from "app/repositories/auth.js";
+import type { User } from "app/schemas/auth.js";
+import { TEST_UUID } from "app/test-utils/uuids.js";
 
-import * as authHandlers from "./auth.js";
-
-vi.mock("../../repositories/auth.js");
-vi.mock("../../config/loggerConfig.js", () => ({
+vi.mock("app/repositories/auth.js");
+vi.mock("app/config/loggerConfig.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
@@ -21,17 +20,21 @@ app.use(cookieParser());
 app.post("/register", authHandlers.register);
 app.post("/login", authHandlers.login);
 app.post("/logout", authHandlers.logout);
-app.get("/me", (req, res, next) => {
-  if (req.headers["x-test-user"] === "1") {
-    req.user = {
-      id: TEST_UUID,
-      email: "user@example.com",
-      created_at: new Date("2025-01-01"),
-      updated_at: null,
-    };
-  }
-  next();
-}, authHandlers.me);
+app.get(
+  "/me",
+  (req, res, next) => {
+    if (req.headers["x-test-user"] === "1") {
+      req.user = {
+        id: TEST_UUID,
+        email: "user@example.com",
+        created_at: new Date("2025-01-01"),
+        updated_at: null,
+      };
+    }
+    next();
+  },
+  authHandlers.me,
+);
 
 const mockUser: User & { password_hash: string } = {
   id: TEST_UUID,
@@ -162,9 +165,7 @@ describe("auth handlers", () => {
     it("returns 204 and deletes session when cookie present", async () => {
       vi.mocked(authRepo.deleteSession).mockResolvedValueOnce(true);
 
-      const res = await request(app)
-        .post("/logout")
-        .set("Cookie", `${SESSION_COOKIE_NAME}=abc123`);
+      const res = await request(app).post("/logout").set("Cookie", `${SESSION_COOKIE_NAME}=abc123`);
 
       expect(res.status).toBe(204);
       expect(authRepo.deleteSession).toHaveBeenCalledWith("abc123");

@@ -1,11 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import db from "../db/pool.js";
-import { TEST_UUID, TEST_UUID_2 } from "../test-utils/uuids.js";
+import db from "app/db/pool.js";
+import * as recruitersRepo from "app/repositories/recruiters.js";
+import { TEST_UUID } from "app/test-utils/uuids.js";
 
-import * as recruitersRepo from "./recruiters.js";
-
-vi.mock("../db/pool.js", () => ({
+vi.mock("app/db/pool.js", () => ({
   default: { query: vi.fn() },
 }));
 

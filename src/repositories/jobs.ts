@@ -1,6 +1,6 @@
-import db from "../db/pool.js";
-import type { CreateJobInput, Job } from "../types/job.js";
-import { buildUpdateClause } from "../utils/buildUpdateClause.js";
+import db from "app/db/pool.js";
+import type { CreateJobInput, Job } from "app/types/job.js";
+import { buildUpdateClause } from "app/utils/buildUpdateClause.js";
 
 /** No user_id — single-user app; all data is shared. See README. */
 const JOB_COLUMNS = "id, company, role, status, applied_date, notes, created_at, updated_at";

@@ -27,7 +27,9 @@ async function main() {
     execSync("git config core.hooksPath .githooks", { cwd: root, stdio: "pipe" });
     console.log("Pre-commit hook installed at .githooks/pre-commit (gitignored)");
   } catch {
-    console.log("Pre-commit hook written to .githooks/pre-commit. Run: git config core.hooksPath .githooks");
+    console.log(
+      "Pre-commit hook written to .githooks/pre-commit. Run: git config core.hooksPath .githooks",
+    );
   }
 }
 

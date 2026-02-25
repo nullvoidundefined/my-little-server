@@ -1,10 +1,10 @@
 import type { Request, Response } from "express";
 
-import { logger } from "../../config/loggerConfig.js";
-import * as recruitersRepo from "../../repositories/recruiters.js";
-import { createRecruiterSchema, patchRecruiterSchema } from "../../schemas/recruiters.js";
-import { parseIdParam } from "../../utils/parseIdParam.js";
-import { parsePagination } from "../../utils/parsePagination.js";
+import { logger } from "app/config/loggerConfig.js";
+import * as recruitersRepo from "app/repositories/recruiters.js";
+import { createRecruiterSchema, patchRecruiterSchema } from "app/schemas/recruiters.js";
+import { parseIdParam } from "app/utils/parseIdParam.js";
+import { parsePagination } from "app/utils/parsePagination.js";
 
 export async function listRecruiters(req: Request, res: Response): Promise<void> {
   try {

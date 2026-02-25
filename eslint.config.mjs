@@ -42,11 +42,22 @@ export default defineConfig(
     rules: {
       // Run Prettier as an ESLint rule
       "prettier/prettier": "error",
+      // Require app/ alias; no relative imports (./ or ../)
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["./**", "../**"], message: "Use the app/ alias instead of relative paths." },
+          ],
+        },
+      ],
       "import/order": [
         "error",
         {
           groups: ["builtin", "external", "internal", "parent", "sibling", "index"],
           "newlines-between": "always",
+          pathGroups: [{ pattern: "app/**", group: "internal", position: "after" }],
+          pathGroupsExcludedImportTypes: ["builtin"],
           alphabetize: {
             order: "asc",
             caseInsensitive: true,

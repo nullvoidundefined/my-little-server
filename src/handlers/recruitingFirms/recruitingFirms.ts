@@ -1,14 +1,14 @@
 import type { Request, Response } from "express";
 import type { ZodIssue } from "zod";
 
-import { logger } from "../../config/loggerConfig.js";
-import * as recruitingFirmsRepo from "../../repositories/recruitingFirms.js";
+import { logger } from "app/config/loggerConfig.js";
+import * as recruitingFirmsRepo from "app/repositories/recruitingFirms.js";
 import {
   createRecruitingFirmSchema,
   patchRecruitingFirmSchema,
-} from "../../schemas/recruitingFirms.js";
-import { parseIdParam } from "../../utils/parseIdParam.js";
-import { parsePagination } from "../../utils/parsePagination.js";
+} from "app/schemas/recruitingFirms.js";
+import { parseIdParam } from "app/utils/parseIdParam.js";
+import { parsePagination } from "app/utils/parsePagination.js";
 
 export async function listRecruitingFirms(req: Request, res: Response): Promise<void> {
   try {
