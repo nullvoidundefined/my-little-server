@@ -1,6 +1,6 @@
 import express from "express";
 
-import * as recruitingFirmsHandlers from "../handlers/recruitingFirms.js";
+import * as recruitingFirmsHandlers from "../handlers/recruitingFirms/recruitingFirms.js";
 
 const recruitingFirmsRouter = express.Router();
 

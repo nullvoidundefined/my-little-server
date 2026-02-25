@@ -2,11 +2,12 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Recruiter } from "../types/recruiter.js";
-import * as recruitersHandlers from "./recruiters.js";
-import * as recruitersRepo from "../repositories/recruiters.js";
+import * as recruitersRepo from "../../repositories/recruiters.js";
+import type { Recruiter } from "../../types/recruiter.js";
 
-vi.mock("../repositories/recruiters.js");
+import * as recruitersHandlers from "./recruiters.js";
+
+vi.mock("../../repositories/recruiters.js");
 
 const app = express();
 app.use(express.json());
@@ -76,9 +77,7 @@ describe("recruiters handlers", () => {
         created_at: new Date("2025-01-01"),
         updated_at: new Date("2025-01-02"),
       };
-      vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(
-        row as unknown as Recruiter,
-      );
+      vi.mocked(recruitersRepo.getRecruiterById).mockResolvedValueOnce(row as unknown as Recruiter);
       const res = await request(app).get("/recruiters/1");
       expect(res.status).toBe(200);
       expect(res.body.name).toBe("Jane");

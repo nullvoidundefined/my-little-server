@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
 
-import { logger } from "../config/loggerConfig.js";
-import { SESSION_COOKIE_NAME, SESSION_TTL_MS } from "../constants/session.js";
-import * as authRepo from "../repositories/auth.js";
-import { loginSchema, registerSchema } from "../schemas/auth.js";
+import { logger } from "../../config/loggerConfig.js";
+import { SESSION_COOKIE_NAME, SESSION_TTL_MS } from "../../constants/session.js";
+import * as authRepo from "../../repositories/auth.js";
+import { loginSchema, registerSchema } from "../../schemas/auth.js";
 
 const SESSION_COOKIE_OPTIONS = {
   httpOnly: true,

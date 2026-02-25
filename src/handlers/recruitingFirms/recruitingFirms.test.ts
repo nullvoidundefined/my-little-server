@@ -2,11 +2,12 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { RecruitingFirm } from "../types/recruitingFirm.js";
-import * as recruitingFirmsHandlers from "./recruitingFirms.js";
-import * as recruitingFirmsRepo from "../repositories/recruitingFirms.js";
+import * as recruitingFirmsRepo from "../../repositories/recruitingFirms.js";
+import type { RecruitingFirm } from "../../types/recruitingFirm.js";
 
-vi.mock("../repositories/recruitingFirms.js");
+import * as recruitingFirmsHandlers from "./recruitingFirms.js";
+
+vi.mock("../../repositories/recruitingFirms.js");
 
 const app = express();
 app.use(express.json());
@@ -121,16 +122,12 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(
         updated as unknown as RecruitingFirm,
       );
-      const res = await request(app)
-        .patch("/recruiting-firms/1")
-        .send({ name: "Acme Recruiting" });
+      const res = await request(app).patch("/recruiting-firms/1").send({ name: "Acme Recruiting" });
       expect(res.status).toBe(200);
     });
     it("returns 404 when not found", async () => {
       vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockResolvedValueOnce(null);
-      const res = await request(app)
-        .patch("/recruiting-firms/999")
-        .send({ name: "X" });
+      const res = await request(app).patch("/recruiting-firms/999").send({ name: "X" });
       expect(res.status).toBe(404);
     });
   });

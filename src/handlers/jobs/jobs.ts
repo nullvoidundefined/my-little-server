@@ -1,10 +1,11 @@
 import type { Request, Response } from "express";
+import type { ZodIssue } from "zod";
 
-import { logger } from "../config/loggerConfig.js";
-import * as jobsRepo from "../repositories/jobs.js";
-import { createJobSchema, patchJobSchema } from "../schemas/jobs.js";
-import { parseIdParam } from "../utils/parseIdParam.js";
-import { parsePagination } from "../utils/parsePagination.js";
+import { logger } from "../../config/loggerConfig.js";
+import * as jobsRepo from "../../repositories/jobs.js";
+import { createJobSchema, patchJobSchema } from "../../schemas/jobs.js";
+import { parseIdParam } from "../../utils/parseIdParam.js";
+import { parsePagination } from "../../utils/parsePagination.js";
 
 export async function listJobs(req: Request, res: Response): Promise<void> {
   try {
@@ -42,7 +43,7 @@ export async function getJob(req: Request, res: Response): Promise<void> {
 export async function createJob(req: Request, res: Response): Promise<void> {
   const parsed = createJobSchema.safeParse(req.body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join("; ");
+    const message = parsed.error.issues.map((e: ZodIssue) => e.message).join("; ");
     res.status(400).json({ error: { message } });
     return;
   }
@@ -63,7 +64,7 @@ export async function updateJob(req: Request, res: Response): Promise<void> {
   }
   const parsed = patchJobSchema.safeParse(req.body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join("; ");
+    const message = parsed.error.issues.map((e: ZodIssue) => e.message).join("; ");
     res.status(400).json({ error: { message } });
     return;
   }

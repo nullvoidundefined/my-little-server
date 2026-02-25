@@ -1,13 +1,14 @@
 import type { Request, Response } from "express";
+import type { ZodIssue } from "zod";
 
-import { logger } from "../config/loggerConfig.js";
-import * as recruitingFirmsRepo from "../repositories/recruitingFirms.js";
+import { logger } from "../../config/loggerConfig.js";
+import * as recruitingFirmsRepo from "../../repositories/recruitingFirms.js";
 import {
   createRecruitingFirmSchema,
   patchRecruitingFirmSchema,
-} from "../schemas/recruitingFirms.js";
-import { parseIdParam } from "../utils/parseIdParam.js";
-import { parsePagination } from "../utils/parsePagination.js";
+} from "../../schemas/recruitingFirms.js";
+import { parseIdParam } from "../../utils/parseIdParam.js";
+import { parsePagination } from "../../utils/parsePagination.js";
 
 export async function listRecruitingFirms(req: Request, res: Response): Promise<void> {
   try {
@@ -45,7 +46,7 @@ export async function getRecruitingFirm(req: Request, res: Response): Promise<vo
 export async function createRecruitingFirm(req: Request, res: Response): Promise<void> {
   const parsed = createRecruitingFirmSchema.safeParse(req.body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join("; ");
+    const message = parsed.error.issues.map((e: ZodIssue) => e.message).join("; ");
     res.status(400).json({ error: { message } });
     return;
   }
@@ -66,7 +67,7 @@ export async function updateRecruitingFirm(req: Request, res: Response): Promise
   }
   const parsed = patchRecruitingFirmSchema.safeParse(req.body);
   if (!parsed.success) {
-    const message = parsed.error.issues.map((e) => e.message).join("; ");
+    const message = parsed.error.issues.map((e: ZodIssue) => e.message).join("; ");
     res.status(400).json({ error: { message } });
     return;
   }

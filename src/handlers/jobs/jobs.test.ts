@@ -2,11 +2,12 @@ import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { Job } from "../types/job.js";
-import * as jobsHandlers from "./jobs.js";
-import * as jobsRepo from "../repositories/jobs.js";
+import * as jobsRepo from "../../repositories/jobs.js";
+import type { Job } from "../../types/job.js";
 
-vi.mock("../repositories/jobs.js");
+import * as jobsHandlers from "./jobs.js";
+
+vi.mock("../../repositories/jobs.js");
 
 const app = express();
 app.use(express.json());
@@ -129,9 +130,7 @@ describe("jobs handlers", () => {
     it("returns 500 when repo throws", async () => {
       vi.mocked(jobsRepo.createJob).mockRejectedValueOnce(new Error("DB error"));
 
-      const res = await request(app)
-        .post("/jobs")
-        .send({ company: "Acme", role: "Engineer" });
+      const res = await request(app).post("/jobs").send({ company: "Acme", role: "Engineer" });
 
       expect(res.status).toBe(500);
       expect(res.body.error.message).toBe("Failed to create job");
