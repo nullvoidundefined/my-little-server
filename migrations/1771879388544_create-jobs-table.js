@@ -1,21 +1,10 @@
 /**
- * Create set_updated_at() and jobs table. Requires PostgreSQL 13+ (gen_random_uuid()).
- *
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  */
 export const up = (pgm) => {
-  pgm.sql(`
-    CREATE OR REPLACE FUNCTION set_updated_at()
-    RETURNS TRIGGER AS $$
-    BEGIN
-      NEW.updated_at = NOW();
-      RETURN NEW;
-    END;
-    $$ LANGUAGE plpgsql;
-  `);
-
   pgm.createTable("jobs", {
     id: { type: "uuid", primaryKey: true, default: pgm.func("gen_random_uuid()") },
+    user_id: { type: "uuid", notNull: true, references: "users", onDelete: "CASCADE" },
     company: { type: "text", notNull: true },
     role: { type: "text", notNull: true },
     status: { type: "text", default: "applied" },
@@ -27,6 +16,7 @@ export const up = (pgm) => {
   pgm.addConstraint("jobs", "jobs_status_check", {
     check: "status IN ('applied', 'interviewing', 'offered', 'rejected', 'accepted')",
   });
+  pgm.createIndex("jobs", ["user_id"]);
   pgm.createIndex("jobs", ["status"]);
   pgm.createIndex("jobs", ["company"]);
   pgm.createIndex("jobs", ["applied_date"]);
@@ -40,5 +30,4 @@ export const up = (pgm) => {
 export const down = (pgm) => {
   pgm.sql("DROP TRIGGER IF EXISTS set_updated_at ON jobs;");
   pgm.dropTable("jobs");
-  pgm.sql("DROP FUNCTION IF EXISTS set_updated_at();");
 };

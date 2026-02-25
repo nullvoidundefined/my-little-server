@@ -13,8 +13,14 @@ vi.mock("app/utils/logs/logger.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
+const userId = uuid();
+
 const app = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { id: userId, email: "test@example.com", created_at: new Date(), updated_at: null };
+  next();
+});
 app.get("/recruiters", recruitersHandlers.listRecruiters);
 app.get("/recruiters/:id", recruitersHandlers.getRecruiter);
 app.post("/recruiters", recruitersHandlers.createRecruiter);
@@ -118,7 +124,10 @@ describe("recruiters handlers", () => {
         .post("/recruiters")
         .send({ name: "Jane", email: "jane@example.com" });
       expect(res.status).toBe(201);
-      expect(recruitersRepo.createRecruiter).toHaveBeenCalled();
+      expect(recruitersRepo.createRecruiter).toHaveBeenCalledWith(
+        userId,
+        expect.objectContaining({ name: "Jane" }),
+      );
     });
     it("returns 400 when body invalid", async () => {
       const res = await request(app).post("/recruiters").send({});

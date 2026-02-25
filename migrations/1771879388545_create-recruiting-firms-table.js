@@ -2,31 +2,25 @@
  * @param pgm {import('node-pg-migrate').MigrationBuilder}
  */
 export const up = (pgm) => {
-  pgm.createTable("recruiters", {
+  pgm.createTable("recruiting_firms", {
     id: { type: "uuid", primaryKey: true, default: pgm.func("gen_random_uuid()") },
+    user_id: { type: "uuid", notNull: true, references: "users", onDelete: "CASCADE" },
     name: { type: "text", notNull: true },
-    email: { type: "text" },
-    phone: { type: "text" },
-    title: { type: "text" },
+    website: { type: "text" },
     linkedin_url: { type: "text" },
-    firm_id: {
-      type: "uuid",
-      references: "recruiting_firms",
-      onDelete: "SET NULL",
-    },
     notes: { type: "text" },
     created_at: { type: "timestamptz", default: pgm.func("NOW()") },
     updated_at: { type: "timestamptz", default: pgm.func("NOW()") },
   });
-  pgm.createIndex("recruiters", ["firm_id"]);
+  pgm.createIndex("recruiting_firms", ["user_id"]);
   pgm.sql(`
-    CREATE TRIGGER set_updated_at BEFORE UPDATE ON recruiters
+    CREATE TRIGGER set_updated_at BEFORE UPDATE ON recruiting_firms
     FOR EACH ROW EXECUTE FUNCTION set_updated_at();
   `);
 };
 
 /** @param pgm {import('node-pg-migrate').MigrationBuilder} */
 export const down = (pgm) => {
-  pgm.sql("DROP TRIGGER IF EXISTS set_updated_at ON recruiters;");
-  pgm.dropTable("recruiters");
+  pgm.sql("DROP TRIGGER IF EXISTS set_updated_at ON recruiting_firms;");
+  pgm.dropTable("recruiting_firms");
 };

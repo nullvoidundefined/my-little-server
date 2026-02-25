@@ -8,10 +8,11 @@ import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listRecruiters(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user!.id;
     const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
     const [rows, total] = await Promise.all([
-      recruitersRepo.listRecruiters(limit, offset),
-      recruitersRepo.getRecruitersTotalCount(),
+      recruitersRepo.listRecruiters(userId, limit, offset),
+      recruitersRepo.getRecruitersTotalCount(userId),
     ]);
     res.json({ data: rows, meta: { total, limit, offset } });
   } catch (err) {
@@ -27,7 +28,7 @@ export async function getRecruiter(req: Request, res: Response): Promise<void> {
     return;
   }
   try {
-    const row = await recruitersRepo.getRecruiterById(id);
+    const row = await recruitersRepo.getRecruiterById(req.user!.id, id);
     if (!row) {
       res.status(404).json({ error: { message: "Recruiter not found" } });
       return;
@@ -47,7 +48,7 @@ export async function createRecruiter(req: Request, res: Response): Promise<void
     return;
   }
   try {
-    const row = await recruitersRepo.createRecruiter(parsed.data);
+    const row = await recruitersRepo.createRecruiter(req.user!.id, parsed.data);
     res.status(201).json(row);
   } catch (err) {
     const code =
@@ -74,7 +75,7 @@ export async function updateRecruiter(req: Request, res: Response): Promise<void
     return;
   }
   try {
-    const row = await recruitersRepo.updateRecruiter(id, parsed.data);
+    const row = await recruitersRepo.updateRecruiter(req.user!.id, id, parsed.data);
     if (!row) {
       res.status(404).json({ error: { message: "Recruiter not found" } });
       return;
@@ -99,7 +100,7 @@ export async function deleteRecruiter(req: Request, res: Response): Promise<void
     return;
   }
   try {
-    const deleted = await recruitersRepo.deleteRecruiter(id);
+    const deleted = await recruitersRepo.deleteRecruiter(req.user!.id, id);
     if (!deleted) {
       res.status(404).json({ error: { message: "Recruiter not found" } });
       return;

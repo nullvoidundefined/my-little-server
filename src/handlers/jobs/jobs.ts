@@ -9,10 +9,11 @@ import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listJobs(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user!.id;
     const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
     const [rows, total] = await Promise.all([
-      jobsRepo.listJobs(limit, offset),
-      jobsRepo.getJobsTotalCount(),
+      jobsRepo.listJobs(userId, limit, offset),
+      jobsRepo.getJobsTotalCount(userId),
     ]);
     res.json({ data: rows, meta: { total, limit, offset } });
   } catch (err) {
@@ -28,7 +29,7 @@ export async function getJob(req: Request, res: Response): Promise<void> {
     return;
   }
   try {
-    const row = await jobsRepo.getJobById(id);
+    const row = await jobsRepo.getJobById(req.user!.id, id);
     if (!row) {
       res.status(404).json({ error: { message: "Job not found" } });
       return;
@@ -48,7 +49,7 @@ export async function createJob(req: Request, res: Response): Promise<void> {
     return;
   }
   try {
-    const row = await jobsRepo.createJob(parsed.data);
+    const row = await jobsRepo.createJob(req.user!.id, parsed.data);
     res.status(201).json(row);
   } catch (err) {
     logger.error({ err }, "Failed to create job");
@@ -69,7 +70,7 @@ export async function updateJob(req: Request, res: Response): Promise<void> {
     return;
   }
   try {
-    const row = await jobsRepo.updateJob(id, parsed.data);
+    const row = await jobsRepo.updateJob(req.user!.id, id, parsed.data);
     if (!row) {
       res.status(404).json({ error: { message: "Job not found" } });
       return;
@@ -88,7 +89,7 @@ export async function deleteJob(req: Request, res: Response): Promise<void> {
     return;
   }
   try {
-    const deleted = await jobsRepo.deleteJob(id);
+    const deleted = await jobsRepo.deleteJob(req.user!.id, id);
     if (!deleted) {
       res.status(404).json({ error: { message: "Job not found" } });
       return;

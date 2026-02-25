@@ -9,6 +9,7 @@ vi.mock("app/db/pool.js", () => ({
 }));
 
 const mockQuery = vi.mocked(query);
+const userId = uuid();
 
 describe("jobs repository", () => {
   beforeEach(() => {
@@ -28,7 +29,7 @@ describe("jobs repository", () => {
     };
     mockQuery.mockResolvedValueOnce({ rows: [row], rowCount: 1 } as never);
 
-    const result = await jobsRepo.createJob({
+    const result = await jobsRepo.createJob(userId, {
       company: "Acme",
       role: "Engineer",
       status: "applied",
@@ -37,6 +38,7 @@ describe("jobs repository", () => {
 
     expect(result).toEqual(row);
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO jobs"), [
+      userId,
       "Acme",
       "Engineer",
       "applied",
@@ -48,7 +50,7 @@ describe("jobs repository", () => {
   it("createJob throws when insert returns no row", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as never);
     await expect(
-      jobsRepo.createJob({ company: "Acme", role: "Engineer", status: "applied" }),
+      jobsRepo.createJob(userId, { company: "Acme", role: "Engineer", status: "applied" }),
     ).rejects.toThrow("Insert returned no row");
   });
 
@@ -67,8 +69,9 @@ describe("jobs repository", () => {
         },
       ],
     } as never);
-    await jobsRepo.createJob({ company: "Acme", role: "Engineer" });
+    await jobsRepo.createJob(userId, { company: "Acme", role: "Engineer" });
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), [
+      userId,
       "Acme",
       "Engineer",
       null,
@@ -79,14 +82,17 @@ describe("jobs repository", () => {
 
   it("getJobsTotalCount returns count", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [{ count: "42" }] } as never);
-    const result = await jobsRepo.getJobsTotalCount();
+    const result = await jobsRepo.getJobsTotalCount(userId);
     expect(result).toBe(42);
-    expect(mockQuery).toHaveBeenCalledWith("SELECT COUNT(*)::int AS count FROM jobs");
+    expect(mockQuery).toHaveBeenCalledWith(
+      "SELECT COUNT(*)::int AS count FROM jobs WHERE user_id = $1",
+      [userId],
+    );
   });
 
   it("getJobsTotalCount returns 0 when no rows", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await jobsRepo.getJobsTotalCount();
+    const result = await jobsRepo.getJobsTotalCount(userId);
     expect(result).toBe(0);
   });
 
@@ -105,28 +111,28 @@ describe("jobs repository", () => {
     ];
     mockQuery.mockResolvedValueOnce({ rows } as never);
 
-    const result = await jobsRepo.listJobs(10, 0);
+    const result = await jobsRepo.listJobs(userId, 10, 0);
 
     expect(result).toEqual(rows);
-    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [10, 0]);
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [userId, 10, 0]);
   });
 
   const id = uuid();
 
   it("getJobById returns null when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await jobsRepo.getJobById(id);
+    const result = await jobsRepo.getJobById(userId, id);
     expect(result).toBeNull();
   });
 
   it("updateJob returns null when no row updated", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await jobsRepo.updateJob(id, { status: "applied" });
+    const result = await jobsRepo.updateJob(userId, id, { status: "applied" });
     expect(result).toBeNull();
   });
 
   it("updateJob returns null when no fields provided", async () => {
-    const result = await jobsRepo.updateJob(id, {});
+    const result = await jobsRepo.updateJob(userId, id, {});
     expect(result).toBeNull();
     expect(mockQuery).not.toHaveBeenCalled();
   });
@@ -143,19 +149,19 @@ describe("jobs repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await jobsRepo.updateJob(id, { status: "interviewing" });
+    const result = await jobsRepo.updateJob(userId, id, { status: "interviewing" });
     expect(result).toEqual(row);
   });
 
   it("deleteJob returns true when row deleted", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
-    const result = await jobsRepo.deleteJob(id);
+    const result = await jobsRepo.deleteJob(userId, id);
     expect(result).toBe(true);
   });
 
   it("deleteJob returns false when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 0 } as never);
-    const result = await jobsRepo.deleteJob(id);
+    const result = await jobsRepo.deleteJob(userId, id);
     expect(result).toBe(false);
   });
 });

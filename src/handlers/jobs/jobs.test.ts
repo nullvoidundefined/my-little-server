@@ -13,8 +13,14 @@ vi.mock("app/utils/logs/logger.js", () => ({
   logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
 }));
 
+const userId = uuid();
+
 const app = express();
 app.use(express.json());
+app.use((req, _res, next) => {
+  req.user = { id: userId, email: "test@example.com", created_at: new Date(), updated_at: null };
+  next();
+});
 app.get("/jobs", jobsHandlers.listJobs);
 app.get("/jobs/:id", jobsHandlers.getJob);
 app.post("/jobs", jobsHandlers.createJob);
@@ -48,7 +54,7 @@ describe("jobs handlers", () => {
       const res = await request(app).get("/jobs");
 
       expectListResponse(res, rows, 1);
-      expect(jobsRepo.listJobs).toHaveBeenCalledWith(50, 0);
+      expect(jobsRepo.listJobs).toHaveBeenCalledWith(userId, 50, 0);
     });
 
     it("returns 500 when repo throws", async () => {
@@ -84,7 +90,7 @@ describe("jobs handlers", () => {
 
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({ id, company: "Acme" });
-      expect(jobsRepo.getJobById).toHaveBeenCalledWith(id);
+      expect(jobsRepo.getJobById).toHaveBeenCalledWith(userId, id);
     });
 
     it("returns 404 when not found", async () => {
@@ -125,6 +131,7 @@ describe("jobs handlers", () => {
       expect(res.status).toBe(201);
       expect(res.body).toMatchObject({ company: "Acme", role: "Engineer" });
       expect(jobsRepo.createJob).toHaveBeenCalledWith(
+        userId,
         expect.objectContaining({ company: "Acme", role: "Engineer" }),
       );
     });
@@ -168,7 +175,7 @@ describe("jobs handlers", () => {
 
       expect(res.status).toBe(200);
       expect(res.body.status).toBe("interviewing");
-      expect(jobsRepo.updateJob).toHaveBeenCalledWith(id, { status: "interviewing" });
+      expect(jobsRepo.updateJob).toHaveBeenCalledWith(userId, id, { status: "interviewing" });
     });
 
     it("returns 404 when not found", async () => {
@@ -207,7 +214,7 @@ describe("jobs handlers", () => {
       const res = await request(app).delete(`/jobs/${id}`);
 
       expect(res.status).toBe(204);
-      expect(jobsRepo.deleteJob).toHaveBeenCalledWith(id);
+      expect(jobsRepo.deleteJob).toHaveBeenCalledWith(userId, id);
     });
 
     it("returns 404 when not found", async () => {

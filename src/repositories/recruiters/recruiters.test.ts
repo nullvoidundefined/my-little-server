@@ -9,6 +9,7 @@ vi.mock("app/db/pool.js", () => ({
 }));
 
 const mockQuery = vi.mocked(query);
+const userId = uuid();
 
 describe("recruiters repository", () => {
   const id = uuid();
@@ -31,7 +32,7 @@ describe("recruiters repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row], rowCount: 1 } as never);
-    const result = await recruitersRepo.createRecruiter({
+    const result = await recruitersRepo.createRecruiter(userId, {
       name: "Jane",
       email: "jane@example.com",
     });
@@ -41,7 +42,7 @@ describe("recruiters repository", () => {
   it("createRecruiter throws when insert returns no row", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as never);
     await expect(
-      recruitersRepo.createRecruiter({ name: "Jane", email: "jane@example.com" }),
+      recruitersRepo.createRecruiter(userId, { name: "Jane", email: "jane@example.com" }),
     ).rejects.toThrow("Insert returned no row");
   });
 
@@ -59,7 +60,7 @@ describe("recruiters repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row], rowCount: 1 } as never);
-    await recruitersRepo.createRecruiter({
+    await recruitersRepo.createRecruiter(userId, {
       name: "Jane",
       email: "jane@example.com",
       phone: "555-1234",
@@ -69,6 +70,7 @@ describe("recruiters repository", () => {
       notes: "notes",
     });
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), [
+      userId,
       "Jane",
       "jane@example.com",
       "555-1234",
@@ -81,13 +83,13 @@ describe("recruiters repository", () => {
 
   it("getRecruitersTotalCount returns 0 when no rows", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await recruitersRepo.getRecruitersTotalCount();
+    const result = await recruitersRepo.getRecruitersTotalCount(userId);
     expect(result).toBe(0);
   });
 
   it("getRecruitersTotalCount returns count from first row", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [{ count: "10" }] } as never);
-    const result = await recruitersRepo.getRecruitersTotalCount();
+    const result = await recruitersRepo.getRecruitersTotalCount(userId);
     expect(result).toBe(10);
   });
 
@@ -105,12 +107,12 @@ describe("recruiters repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitersRepo.getRecruiterById(id);
+    const result = await recruitersRepo.getRecruiterById(userId, id);
     expect(result).toEqual(row);
   });
 
   it("updateRecruiter returns null when no fields provided", async () => {
-    const result = await recruitersRepo.updateRecruiter(id, {});
+    const result = await recruitersRepo.updateRecruiter(userId, id, {});
     expect(result).toBeNull();
     expect(mockQuery).not.toHaveBeenCalled();
   });
@@ -129,31 +131,31 @@ describe("recruiters repository", () => {
       updated_at: new Date(),
     };
     mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
-    const result = await recruitersRepo.updateRecruiter(id, { name: "Jane Doe" });
+    const result = await recruitersRepo.updateRecruiter(userId, id, { name: "Jane Doe" });
     expect(result).toEqual(row);
   });
 
   it("deleteRecruiter returns true when row deleted", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
-    const result = await recruitersRepo.deleteRecruiter(id);
+    const result = await recruitersRepo.deleteRecruiter(userId, id);
     expect(result).toBe(true);
   });
 
   it("listRecruiters returns rows", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    await recruitersRepo.listRecruiters(10, 0);
-    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [10, 0]);
+    await recruitersRepo.listRecruiters(userId, 10, 0);
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("SELECT"), [userId, 10, 0]);
   });
 
   it("getRecruiterById returns null when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
-    const result = await recruitersRepo.getRecruiterById(id);
+    const result = await recruitersRepo.getRecruiterById(userId, id);
     expect(result).toBeNull();
   });
 
   it("deleteRecruiter returns false when not found", async () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 0 } as never);
-    const result = await recruitersRepo.deleteRecruiter(id);
+    const result = await recruitersRepo.deleteRecruiter(userId, id);
     expect(result).toBe(false);
   });
 });

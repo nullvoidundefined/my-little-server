@@ -12,10 +12,11 @@ import { parsePagination } from "app/utils/parsers/parsePagination.js";
 
 export async function listRecruitingFirms(req: Request, res: Response): Promise<void> {
   try {
+    const userId = req.user!.id;
     const { limit, offset } = parsePagination(req.query.limit, req.query.offset);
     const [rows, total] = await Promise.all([
-      recruitingFirmsRepo.listRecruitingFirms(limit, offset),
-      recruitingFirmsRepo.getRecruitingFirmsTotalCount(),
+      recruitingFirmsRepo.listRecruitingFirms(userId, limit, offset),
+      recruitingFirmsRepo.getRecruitingFirmsTotalCount(userId),
     ]);
     res.json({ data: rows, meta: { total, limit, offset } });
   } catch (err) {
@@ -31,7 +32,7 @@ export async function getRecruitingFirm(req: Request, res: Response): Promise<vo
     return;
   }
   try {
-    const row = await recruitingFirmsRepo.getRecruitingFirmById(id);
+    const row = await recruitingFirmsRepo.getRecruitingFirmById(req.user!.id, id);
     if (!row) {
       res.status(404).json({ error: { message: "Recruiting firm not found" } });
       return;
@@ -51,7 +52,7 @@ export async function createRecruitingFirm(req: Request, res: Response): Promise
     return;
   }
   try {
-    const row = await recruitingFirmsRepo.createRecruitingFirm(parsed.data);
+    const row = await recruitingFirmsRepo.createRecruitingFirm(req.user!.id, parsed.data);
     res.status(201).json(row);
   } catch (err) {
     logger.error({ err }, "Failed to create recruiting firm");
@@ -72,7 +73,7 @@ export async function updateRecruitingFirm(req: Request, res: Response): Promise
     return;
   }
   try {
-    const row = await recruitingFirmsRepo.updateRecruitingFirm(id, parsed.data);
+    const row = await recruitingFirmsRepo.updateRecruitingFirm(req.user!.id, id, parsed.data);
     if (!row) {
       res.status(404).json({ error: { message: "Recruiting firm not found" } });
       return;
@@ -91,7 +92,7 @@ export async function deleteRecruitingFirm(req: Request, res: Response): Promise
     return;
   }
   try {
-    const deleted = await recruitingFirmsRepo.deleteRecruitingFirm(id);
+    const deleted = await recruitingFirmsRepo.deleteRecruitingFirm(req.user!.id, id);
     if (!deleted) {
       res.status(404).json({ error: { message: "Recruiting firm not found" } });
       return;
