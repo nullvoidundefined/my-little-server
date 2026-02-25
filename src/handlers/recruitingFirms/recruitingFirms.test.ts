@@ -8,6 +8,9 @@ import type { RecruitingFirm } from "../../types/recruitingFirm.js";
 import * as recruitingFirmsHandlers from "./recruitingFirms.js";
 
 vi.mock("../../repositories/recruitingFirms.js");
+vi.mock("../../config/loggerConfig.js", () => ({
+  logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+}));
 
 const app = express();
 app.use(express.json());

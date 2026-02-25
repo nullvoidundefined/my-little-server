@@ -8,6 +8,9 @@ import type { Job } from "../../types/job.js";
 import * as jobsHandlers from "./jobs.js";
 
 vi.mock("../../repositories/jobs.js");
+vi.mock("../../config/loggerConfig.js", () => ({
+  logger: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), debug: vi.fn() },
+}));
 
 const app = express();
 app.use(express.json());
