@@ -3,7 +3,7 @@ import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 
 import { SESSION_TTL_MS } from "app/constants/session.js";
-import db, { withTransaction } from "app/db/pool.js";
+import { query, withTransaction } from "app/db/pool.js";
 import type { PoolClient } from "app/db/pool.js";
 import type { User } from "app/schemas/auth.js";
 
@@ -14,20 +14,16 @@ function hashSessionToken(token: string): string {
   return crypto.createHash("sha256").update(token, "utf8").digest("hex");
 }
 
-function getQuery(client: PoolClient | undefined) {
-  return client ?? db;
-}
-
 export async function createUser(
   email: string,
   password: string,
   client?: PoolClient,
 ): Promise<User> {
   const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
-  const query = getQuery(client);
-  const result = await query.query<User & { password_hash: string }>(
+  const result = await query<User & { password_hash: string }>(
     "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at, updated_at",
     [email.toLowerCase().trim(), password_hash],
+    client,
   );
   const row = result.rows[0];
   if (!row) throw new Error("Insert returned no row");
@@ -37,7 +33,7 @@ export async function createUser(
 export async function findUserByEmail(
   email: string,
 ): Promise<(User & { password_hash: string }) | null> {
-  const result = await db.query<User & { password_hash: string }>(
+  const result = await query<User & { password_hash: string }>(
     "SELECT id, email, password_hash, created_at, updated_at FROM users WHERE email = $1",
     [email.toLowerCase().trim()],
   );
@@ -45,7 +41,7 @@ export async function findUserByEmail(
 }
 
 export async function findUserById(id: string): Promise<User | null> {
-  const result = await db.query<User>(
+  const result = await query<User>(
     "SELECT id, email, created_at, updated_at FROM users WHERE id = $1",
     [id],
   );
@@ -60,19 +56,18 @@ export async function createSession(userId: string, client?: PoolClient): Promis
   const token = crypto.randomBytes(32).toString("hex");
   const idHash = hashSessionToken(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-  const query = getQuery(client);
-  await query.query("INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)", [
-    idHash,
-    userId,
-    expiresAt,
-  ]);
+  await query(
+    "INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)",
+    [idHash, userId, expiresAt],
+    client,
+  );
   return token;
 }
 
 /** Returns the user for a valid session in one query (sessions JOIN users). */
 export async function getSessionWithUser(sessionId: string): Promise<User | null> {
   const idHash = hashSessionToken(sessionId);
-  const result = await db.query<User>(
+  const result = await query<User>(
     `SELECT u.id, u.email, u.created_at, u.updated_at
      FROM sessions s
      INNER JOIN users u ON u.id = s.user_id
@@ -84,12 +79,12 @@ export async function getSessionWithUser(sessionId: string): Promise<User | null
 
 export async function deleteSession(sessionId: string): Promise<boolean> {
   const idHash = hashSessionToken(sessionId);
-  const result = await db.query("DELETE FROM sessions WHERE id = $1 RETURNING id", [idHash]);
+  const result = await query("DELETE FROM sessions WHERE id = $1 RETURNING id", [idHash]);
   return (result.rowCount ?? 0) > 0;
 }
 
 export async function deleteSessionsForUser(userId: string): Promise<void> {
-  await db.query("DELETE FROM sessions WHERE user_id = $1", [userId]);
+  await query("DELETE FROM sessions WHERE user_id = $1", [userId]);
 }
 
 /**

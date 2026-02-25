@@ -2,17 +2,17 @@ import crypto from "node:crypto";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import db from "app/db/pool.js";
+import { query } from "app/db/pool.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
+const mockClient = {};
+
 vi.mock("app/db/pool.js", () => {
-  const query = vi.fn();
+  const queryFn = vi.fn();
   return {
-    default: { query },
-    withTransaction: vi.fn((fn: (client: { query: typeof query }) => Promise<unknown>) =>
-      fn({ query }),
-    ),
+    query: queryFn,
+    withTransaction: vi.fn((fn: (client: unknown) => Promise<unknown>) => fn(mockClient)),
   };
 });
 
@@ -25,7 +25,7 @@ vi.mock("bcrypt", () => ({
   },
 }));
 
-const mockQuery = vi.mocked(db.query);
+const mockQuery = vi.mocked(query);
 
 describe("auth repository", () => {
   const id = uuid();
@@ -46,10 +46,11 @@ describe("auth repository", () => {
     const result = await authRepo.createUser("u@example.com", "password123");
 
     expect(result).toEqual(row);
-    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO users"), [
-      "u@example.com",
-      "hashed",
-    ]);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO users"),
+      ["u@example.com", "hashed"],
+      undefined,
+    );
   });
 
   it("createUser throws when insert returns no row", async () => {
@@ -115,11 +116,11 @@ describe("auth repository", () => {
     expect(typeof result).toBe("string");
     expect(result).toHaveLength(64);
     const storedHash = crypto.createHash("sha256").update(result, "utf8").digest("hex");
-    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO sessions"), [
-      storedHash,
-      id,
-      expect.any(Date),
-    ]);
+    expect(mockQuery).toHaveBeenCalledWith(
+      expect.stringContaining("INSERT INTO sessions"),
+      [storedHash, id, expect.any(Date)],
+      undefined,
+    );
   });
 
   it("getSessionWithUser returns user when session valid", async () => {
@@ -178,14 +179,17 @@ describe("auth repository", () => {
     expect(result.user).toEqual(userRow);
     expect(typeof result.sessionId).toBe("string");
     expect(result.sessionId).toHaveLength(64);
-    expect(mockQuery).toHaveBeenNthCalledWith(1, expect.stringContaining("INSERT INTO users"), [
-      "u@example.com",
-      "hashed",
-    ]);
-    expect(mockQuery).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO sessions"), [
-      expect.any(String),
-      id,
-      expect.any(Date),
-    ]);
+    expect(mockQuery).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("INSERT INTO users"),
+      ["u@example.com", "hashed"],
+      mockClient,
+    );
+    expect(mockQuery).toHaveBeenNthCalledWith(
+      2,
+      expect.stringContaining("INSERT INTO sessions"),
+      [expect.any(String), id, expect.any(Date)],
+      mockClient,
+    );
   });
 });

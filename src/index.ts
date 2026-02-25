@@ -8,7 +8,7 @@ import helmet from "helmet";
 
 import { corsConfig } from "app/config/corsConfig.js";
 import { httpLogger, logger } from "app/config/loggerConfig.js";
-import db from "app/db/pool.js";
+import pool, { query } from "app/db/pool.js";
 import { csrfGuard } from "app/middleware/csrfGuard.js";
 import { errorHandler } from "app/middleware/errorHandler.js";
 import { notFoundHandler } from "app/middleware/notFoundHandler.js";
@@ -69,13 +69,13 @@ app.use((_req, res, next) => {
   next();
 });
 
-db.query("SELECT NOW()")
+query("SELECT NOW()")
   .then(() => logger.info("Connected to database"))
   .catch((err: unknown) => logger.error({ err }, "Database connection failed"));
 
 app.get("/health", async (_req, res) => {
   try {
-    await db.query("SELECT 1");
+    await query("SELECT 1");
     res.status(200).json({ status: "ok", db: "connected" });
   } catch {
     res.status(503).json({ status: "degraded", db: "disconnected" });
@@ -107,7 +107,7 @@ if (isEntryModule) {
     logger.info({ signal }, "Shutting down gracefully");
     await new Promise<void>((resolve) => server.close(() => resolve()));
     logger.info("HTTP server closed");
-    await db.end();
+    await pool.end();
     process.exit(0);
   }
 

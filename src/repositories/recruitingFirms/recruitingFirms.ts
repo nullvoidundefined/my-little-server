@@ -1,5 +1,5 @@
 import { buildUpdateClause } from "app/db/buildUpdateClause.js";
-import db from "app/db/pool.js";
+import { query } from "app/db/pool.js";
 import type { CreateRecruitingFirmInput, RecruitingFirm } from "app/types/recruitingFirm.js";
 
 const RECRUITING_FIRM_COLUMNS = "id, name, website, linkedin_url, notes, created_at, updated_at";
@@ -9,7 +9,7 @@ export async function createRecruitingFirm(
   data: CreateRecruitingFirmInput,
 ): Promise<RecruitingFirm> {
   const { name, website, linkedin_url, notes } = data;
-  const result = await db.query<RecruitingFirm>(
+  const result = await query<RecruitingFirm>(
     `INSERT INTO recruiting_firms (name, website, linkedin_url, notes) VALUES ($1, $2, $3, $4) RETURNING ${RECRUITING_FIRM_COLUMNS}`,
     [name, website ?? null, linkedin_url ?? null, notes ?? null],
   );
@@ -19,7 +19,7 @@ export async function createRecruitingFirm(
 }
 
 export async function getRecruitingFirmsTotalCount(): Promise<number> {
-  const result = await db.query<{ count: string }>(
+  const result = await query<{ count: string }>(
     "SELECT COUNT(*)::int AS count FROM recruiting_firms",
   );
   return Number(result.rows[0]?.count ?? 0);
@@ -29,7 +29,7 @@ export async function listRecruitingFirms(
   limit: number,
   offset: number,
 ): Promise<RecruitingFirm[]> {
-  const result = await db.query<RecruitingFirm>(
+  const result = await query<RecruitingFirm>(
     `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
@@ -37,7 +37,7 @@ export async function listRecruitingFirms(
 }
 
 export async function getRecruitingFirmById(id: string): Promise<RecruitingFirm | null> {
-  const result = await db.query<RecruitingFirm>(
+  const result = await query<RecruitingFirm>(
     `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms WHERE id = $1`,
     [id],
   );
@@ -54,7 +54,7 @@ export async function updateRecruitingFirm(
   );
   if (values.length === 0) return null;
   values.push(id);
-  const result = await db.query<RecruitingFirm>(
+  const result = await query<RecruitingFirm>(
     `UPDATE recruiting_firms SET ${setClause} WHERE id = $${values.length} RETURNING ${RECRUITING_FIRM_COLUMNS}`,
     values,
   );
@@ -62,6 +62,6 @@ export async function updateRecruitingFirm(
 }
 
 export async function deleteRecruitingFirm(id: string): Promise<boolean> {
-  const result = await db.query("DELETE FROM recruiting_firms WHERE id = $1 RETURNING id", [id]);
+  const result = await query("DELETE FROM recruiting_firms WHERE id = $1 RETURNING id", [id]);
   return (result.rowCount ?? 0) > 0;
 }

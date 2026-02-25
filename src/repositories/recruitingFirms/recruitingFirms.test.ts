@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import db from "app/db/pool.js";
+import { query } from "app/db/pool.js";
 import * as recruitingFirmsRepo from "app/repositories/recruitingFirms/recruitingFirms.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
 vi.mock("app/db/pool.js", () => ({
-  default: { query: vi.fn() },
+  query: vi.fn(),
 }));
 
-const mockQuery = vi.mocked(db.query);
+const mockQuery = vi.mocked(query);
 
 describe("recruitingFirms repository", () => {
   const id = uuid();
