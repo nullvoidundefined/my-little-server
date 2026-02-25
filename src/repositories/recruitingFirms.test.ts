@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import db from "../database/utilities/connectionPool/connectionPool.js";
+import db from "../db/pool.js";
 
 import * as recruitingFirmsRepo from "./recruitingFirms.js";
 
-vi.mock("../database/utilities/connectionPool/connectionPool.js", () => ({
+vi.mock("../db/pool.js", () => ({
   default: { query: vi.fn() },
 }));
 

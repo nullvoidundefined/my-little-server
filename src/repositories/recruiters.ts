@@ -1,4 +1,4 @@
-import db from "../database/utilities/connectionPool/connectionPool.js";
+import db from "../db/pool.js";
 import type { CreateRecruiterInput, Recruiter } from "../types/recruiter.js";
 import { buildUpdateClause } from "../utils/buildUpdateClause.js";
 

@@ -5,7 +5,7 @@ import helmet from "helmet";
 
 import { corsConfig } from "./config/corsConfig.js";
 import { httpLogger, logger } from "./config/loggerConfig.js";
-import db from "./database/utilities/connectionPool/connectionPool.js";
+import db from "./db/pool.js";
 import { csrfGuard } from "./middleware/csrfGuard.js";
 import { loadSession, requireAuth } from "./middleware/requireAuth.js";
 import { authRouter } from "./routes/auth.js";

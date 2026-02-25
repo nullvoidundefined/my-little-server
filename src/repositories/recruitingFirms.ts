@@ -1,4 +1,4 @@
-import db from "../database/utilities/connectionPool/connectionPool.js";
+import db from "../db/pool.js";
 import type {
   CreateRecruitingFirmInput,
   RecruitingFirm,

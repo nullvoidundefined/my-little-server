@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import db from "../database/utilities/connectionPool/connectionPool.js";
+import db from "../db/pool.js";
 
 import * as jobsRepo from "./jobs.js";
 
-vi.mock("../database/utilities/connectionPool/connectionPool.js", () => ({
+vi.mock("../db/pool.js", () => ({
   default: { query: vi.fn() },
 }));
 
@@ -37,7 +37,7 @@ describe("jobs repository", () => {
 
     expect(result).toEqual(row);
     expect(mockQuery).toHaveBeenCalledWith(
-      "INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *",
+      "INSERT INTO jobs (company, role, status, applied_date, notes) VALUES ($1, $2, $3, $4, $5) RETURNING id, company, role, status, applied_date, notes, created_at, updated_at",
       ["Acme", "Engineer", "applied", "2025-01-01", null],
     );
   });

@@ -9,7 +9,7 @@ export default defineConfig({
         "*.config.*",
         "**/config/**",
         "**/types/**",
-        "**/connectionPool/**",
+        "**/db/**",
         "**/rateLimiter.ts",
         "**/*.d.ts",
         "**/*.test.ts",
