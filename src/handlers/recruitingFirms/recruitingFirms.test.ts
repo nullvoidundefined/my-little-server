@@ -82,6 +82,14 @@ describe("recruitingFirms handlers", () => {
       const res = await request(app).get("/recruiting-firms/999");
       expect(res.status).toBe(404);
     });
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(recruitingFirmsRepo.getRecruitingFirmById).mockRejectedValueOnce(
+        new Error("DB error"),
+      );
+      const res = await request(app).get("/recruiting-firms/1");
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to fetch recruiting firm");
+    });
   });
 
   describe("createRecruitingFirm", () => {
@@ -106,9 +114,22 @@ describe("recruitingFirms handlers", () => {
       const res = await request(app).post("/recruiting-firms").send({});
       expect(res.status).toBe(400);
     });
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(recruitingFirmsRepo.createRecruitingFirm).mockRejectedValueOnce(
+        new Error("DB error"),
+      );
+      const res = await request(app).post("/recruiting-firms").send({ name: "Acme" });
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to create recruiting firm");
+    });
   });
 
   describe("updateRecruitingFirm", () => {
+    it("returns 400 for invalid id", async () => {
+      const res = await request(app).patch("/recruiting-firms/abc").send({ name: "X" });
+      expect(res.status).toBe(400);
+      expect(recruitingFirmsRepo.updateRecruitingFirm).not.toHaveBeenCalled();
+    });
     it("returns 200 when updated", async () => {
       const updated = {
         id: 1,
@@ -130,9 +151,22 @@ describe("recruitingFirms handlers", () => {
       const res = await request(app).patch("/recruiting-firms/999").send({ name: "X" });
       expect(res.status).toBe(404);
     });
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(recruitingFirmsRepo.updateRecruitingFirm).mockRejectedValueOnce(
+        new Error("DB error"),
+      );
+      const res = await request(app).patch("/recruiting-firms/1").send({ name: "Acme Recruiting" });
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to update recruiting firm");
+    });
   });
 
   describe("deleteRecruitingFirm", () => {
+    it("returns 400 for invalid id", async () => {
+      const res = await request(app).delete("/recruiting-firms/abc");
+      expect(res.status).toBe(400);
+      expect(recruitingFirmsRepo.deleteRecruitingFirm).not.toHaveBeenCalled();
+    });
     it("returns 204 when deleted", async () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(true);
       const res = await request(app).delete("/recruiting-firms/1");
@@ -142,6 +176,14 @@ describe("recruitingFirms handlers", () => {
       vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockResolvedValueOnce(false);
       const res = await request(app).delete("/recruiting-firms/999");
       expect(res.status).toBe(404);
+    });
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(recruitingFirmsRepo.deleteRecruitingFirm).mockRejectedValueOnce(
+        new Error("DB error"),
+      );
+      const res = await request(app).delete("/recruiting-firms/1");
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to delete recruiting firm");
     });
   });
 });

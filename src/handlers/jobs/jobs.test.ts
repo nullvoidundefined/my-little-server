@@ -94,6 +94,15 @@ describe("jobs handlers", () => {
       expect(res.status).toBe(404);
       expect(res.body.error.message).toBe("Job not found");
     });
+
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(jobsRepo.getJobById).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).get("/jobs/1");
+
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to fetch job");
+    });
   });
 
   describe("createJob", () => {
@@ -173,6 +182,15 @@ describe("jobs handlers", () => {
       expect(res.body.error.message).toBe("Job not found");
     });
 
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(jobsRepo.updateJob).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).patch("/jobs/1").send({ status: "interviewing" });
+
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to update job");
+    });
+
     it("returns 400 when body invalid", async () => {
       const res = await request(app).patch("/jobs/1").send({ company: "" });
       expect(res.status).toBe(400);
@@ -203,6 +221,15 @@ describe("jobs handlers", () => {
 
       expect(res.status).toBe(404);
       expect(res.body.error.message).toBe("Job not found");
+    });
+
+    it("returns 500 when repo throws", async () => {
+      vi.mocked(jobsRepo.deleteJob).mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).delete("/jobs/1");
+
+      expect(res.status).toBe(500);
+      expect(res.body.error.message).toBe("Failed to delete job");
     });
   });
 });

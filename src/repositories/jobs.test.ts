@@ -42,11 +42,49 @@ describe("jobs repository", () => {
     );
   });
 
+  it("createJob throws when insert returns no row", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 } as never);
+    await expect(
+      jobsRepo.createJob({ company: "Acme", role: "Engineer", status: "applied" }),
+    ).rejects.toThrow("Insert returned no row");
+  });
+
+  it("createJob passes null for optional status, applied_date, notes", async () => {
+    mockQuery.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 1,
+          company: "Acme",
+          role: "Engineer",
+          status: null,
+          applied_date: null,
+          notes: null,
+          created_at: new Date(),
+          updated_at: new Date(),
+        },
+      ],
+    } as never);
+    await jobsRepo.createJob({ company: "Acme", role: "Engineer" });
+    expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("INSERT"), [
+      "Acme",
+      "Engineer",
+      null,
+      null,
+      null,
+    ]);
+  });
+
   it("getJobsTotalCount returns count", async () => {
     mockQuery.mockResolvedValueOnce({ rows: [{ count: "42" }] } as never);
     const result = await jobsRepo.getJobsTotalCount();
     expect(result).toBe(42);
     expect(mockQuery).toHaveBeenCalledWith("SELECT COUNT(*)::int AS count FROM jobs");
+  });
+
+  it("getJobsTotalCount returns 0 when no rows", async () => {
+    mockQuery.mockResolvedValueOnce({ rows: [] } as never);
+    const result = await jobsRepo.getJobsTotalCount();
+    expect(result).toBe(0);
   });
 
   it("listJobs returns rows", async () => {
@@ -80,6 +118,35 @@ describe("jobs repository", () => {
     mockQuery.mockResolvedValueOnce({ rows: [] } as never);
     const result = await jobsRepo.updateJob(999, { status: "applied" });
     expect(result).toBeNull();
+  });
+
+  it("updateJob throws when no fields provided", async () => {
+    await expect(jobsRepo.updateJob(1, {})).rejects.toThrow(
+      "At least one field required for update",
+    );
+    expect(mockQuery).not.toHaveBeenCalled();
+  });
+
+  it("updateJob returns row when updated", async () => {
+    const row = {
+      id: 1,
+      company: "Acme",
+      role: "Engineer",
+      status: "interviewing",
+      applied_date: "2025-01-01",
+      notes: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+    };
+    mockQuery.mockResolvedValueOnce({ rows: [row] } as never);
+    const result = await jobsRepo.updateJob(1, { status: "interviewing" });
+    expect(result).toEqual(row);
+  });
+
+  it("deleteJob returns true when row deleted", async () => {
+    mockQuery.mockResolvedValueOnce({ rowCount: 1 } as never);
+    const result = await jobsRepo.deleteJob(1);
+    expect(result).toBe(true);
   });
 
   it("deleteJob returns false when not found", async () => {
