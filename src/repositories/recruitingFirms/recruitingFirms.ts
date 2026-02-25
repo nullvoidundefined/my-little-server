@@ -30,7 +30,7 @@ export async function listRecruitingFirms(
   offset: number,
 ): Promise<RecruitingFirm[]> {
   const result = await db.query<RecruitingFirm>(
-    `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms ORDER BY id LIMIT $1 OFFSET $2`,
+    `SELECT ${RECRUITING_FIRM_COLUMNS} FROM recruiting_firms ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
   return result.rows;

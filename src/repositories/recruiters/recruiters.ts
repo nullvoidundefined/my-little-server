@@ -40,7 +40,7 @@ export async function getRecruitersTotalCount(): Promise<number> {
 
 export async function listRecruiters(limit: number, offset: number): Promise<Recruiter[]> {
   const result = await db.query<Recruiter>(
-    `SELECT ${RECRUITER_COLUMNS} FROM recruiters ORDER BY id LIMIT $1 OFFSET $2`,
+    `SELECT ${RECRUITER_COLUMNS} FROM recruiters ORDER BY created_at DESC, id DESC LIMIT $1 OFFSET $2`,
     [limit, offset],
   );
   return result.rows;
