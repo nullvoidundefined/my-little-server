@@ -73,9 +73,9 @@ describe("route wiring", () => {
       const res = await request(app).post("/auth/logout");
       expect(res.status).toBe(204);
     });
-    it("GET /auth/me → 200", async () => {
+    it("GET /auth/me → 401 when unauthenticated", async () => {
       const res = await request(app).get("/auth/me");
-      expect(res.status).toBe(200);
+      expect(res.status).toBe(401);
     });
   });
 

@@ -80,9 +80,5 @@ export async function logout(req: Request, res: Response): Promise<void> {
 }
 
 export async function me(req: Request, res: Response): Promise<void> {
-  if (!req.user) {
-    res.status(401).json({ error: { message: "Not authenticated" } });
-    return;
-  }
   res.json({ user: req.user });
 }

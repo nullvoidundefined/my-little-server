@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SESSION_COOKIE_NAME } from "app/constants/session.js";
 import * as authHandlers from "app/handlers/auth/auth.js";
+import { requireAuth } from "app/middleware/requireAuth.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import type { User } from "app/schemas/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
@@ -34,6 +35,7 @@ app.get(
     }
     next();
   },
+  requireAuth,
   authHandlers.me,
 );
 
@@ -184,7 +186,7 @@ describe("auth handlers", () => {
     it("returns 401 when not authenticated", async () => {
       const res = await request(app).get("/me");
       expect(res.status).toBe(401);
-      expect(res.body.error.message).toBe("Not authenticated");
+      expect(res.body.error.message).toBe("Authentication required");
     });
     it("returns 200 with user when req.user set", async () => {
       const res = await request(app).get("/me").set("x-test-user", "1");
