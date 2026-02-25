@@ -6,9 +6,15 @@ import db from "app/db/pool.js";
 import * as authRepo from "app/repositories/auth/auth.js";
 import { uuid } from "app/utils/tests/uuids.js";
 
-vi.mock("app/db/pool.js", () => ({
-  default: { query: vi.fn() },
-}));
+vi.mock("app/db/pool.js", () => {
+  const query = vi.fn();
+  return {
+    default: { query },
+    withTransaction: vi.fn((fn: (client: { query: typeof query }) => Promise<unknown>) =>
+      fn({ query }),
+    ),
+  };
+});
 
 vi.mock("bcrypt", () => ({
   default: {
@@ -156,5 +162,30 @@ describe("auth repository", () => {
     mockQuery.mockResolvedValueOnce({ rowCount: 2 } as never);
     await authRepo.deleteSessionsForUser(id);
     expect(mockQuery).toHaveBeenCalledWith(expect.stringContaining("DELETE FROM sessions"), [id]);
+  });
+
+  it("createUserAndSession runs user and session inserts in transaction", async () => {
+    const userRow = {
+      id,
+      email: "u@example.com",
+      created_at: new Date(),
+      updated_at: null,
+    };
+    mockQuery
+      .mockResolvedValueOnce({ rows: [userRow], rowCount: 1 } as never)
+      .mockResolvedValueOnce({ rows: [], rowCount: 1 } as never);
+    const result = await authRepo.createUserAndSession("u@example.com", "pwd");
+    expect(result.user).toEqual(userRow);
+    expect(typeof result.sessionId).toBe("string");
+    expect(result.sessionId).toHaveLength(64);
+    expect(mockQuery).toHaveBeenNthCalledWith(1, expect.stringContaining("INSERT INTO users"), [
+      "u@example.com",
+      "hashed",
+    ]);
+    expect(mockQuery).toHaveBeenNthCalledWith(2, expect.stringContaining("INSERT INTO sessions"), [
+      expect.any(String),
+      id,
+      expect.any(Date),
+    ]);
   });
 });

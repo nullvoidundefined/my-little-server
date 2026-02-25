@@ -21,8 +21,7 @@ export async function register(req: Request, res: Response): Promise<void> {
   }
   const { email, password } = parsed.data;
   try {
-    const user = await authRepo.createUser(email, password);
-    const sessionId = await authRepo.createSession(user.id);
+    const { user, sessionId } = await authRepo.createUserAndSession(email, password);
     res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
     res.status(201).json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
   } catch (err) {
@@ -56,6 +55,11 @@ export async function login(req: Request, res: Response): Promise<void> {
   }
   await authRepo.deleteSessionsForUser(user.id);
   const sessionId = await authRepo.createSession(user.id);
+  res.clearCookie(SESSION_COOKIE_NAME, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
   res.cookie(SESSION_COOKIE_NAME, sessionId, SESSION_COOKIE_OPTIONS);
   res.json({ user: { id: user.id, email: user.email, created_at: user.created_at } });
 }

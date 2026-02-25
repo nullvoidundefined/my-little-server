@@ -3,7 +3,8 @@ import crypto from "node:crypto";
 import bcrypt from "bcrypt";
 
 import { SESSION_TTL_MS } from "app/constants/session.js";
-import db from "app/db/pool.js";
+import db, { withTransaction } from "app/db/pool.js";
+import type { PoolClient } from "app/db/pool.js";
 import type { User } from "app/schemas/auth.js";
 
 const SALT_ROUNDS = 10;
@@ -13,9 +14,18 @@ function hashSessionToken(token: string): string {
   return crypto.createHash("sha256").update(token, "utf8").digest("hex");
 }
 
-export async function createUser(email: string, password: string): Promise<User> {
+function getQuery(client: PoolClient | undefined) {
+  return client ?? db;
+}
+
+export async function createUser(
+  email: string,
+  password: string,
+  client?: PoolClient,
+): Promise<User> {
   const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
-  const result = await db.query<User & { password_hash: string }>(
+  const query = getQuery(client);
+  const result = await query.query<User & { password_hash: string }>(
     "INSERT INTO users (email, password_hash) VALUES ($1, $2) RETURNING id, email, created_at, updated_at",
     [email.toLowerCase().trim(), password_hash],
   );
@@ -46,11 +56,15 @@ export async function verifyPassword(plain: string, hash: string): Promise<boole
   return bcrypt.compare(plain, hash);
 }
 
-export async function createSession(userId: string): Promise<string> {
+export async function createSession(
+  userId: string,
+  client?: PoolClient,
+): Promise<string> {
   const token = crypto.randomBytes(32).toString("hex");
   const idHash = hashSessionToken(token);
   const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
-  await db.query("INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)", [
+  const query = getQuery(client);
+  await query.query("INSERT INTO sessions (id, user_id, expires_at) VALUES ($1, $2, $3)", [
     idHash,
     userId,
     expiresAt,
@@ -79,4 +93,20 @@ export async function deleteSession(sessionId: string): Promise<boolean> {
 
 export async function deleteSessionsForUser(userId: string): Promise<void> {
   await db.query("DELETE FROM sessions WHERE user_id = $1", [userId]);
+}
+
+/**
+ * Creates a user and their first session in a single transaction.
+ * Avoids the 23505 race where createUser succeeds but createSession fails, leaving an orphan user.
+ * Throws with code "23505" when email is already registered.
+ */
+export async function createUserAndSession(
+  email: string,
+  password: string,
+): Promise<{ user: User; sessionId: string }> {
+  return withTransaction(async (client) => {
+    const user = await createUser(email, password, client);
+    const sessionId = await createSession(user.id, client);
+    return { user, sessionId };
+  });
 }

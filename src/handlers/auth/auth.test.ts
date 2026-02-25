@@ -58,12 +58,14 @@ describe("auth handlers", () => {
     it("returns 400 when body invalid", async () => {
       const res = await request(app).post("/register").send({});
       expect(res.status).toBe(400);
-      expect(authRepo.createUser).not.toHaveBeenCalled();
+      expect(authRepo.createUserAndSession).not.toHaveBeenCalled();
     });
     it("returns 201 and sets cookie when created", async () => {
       const created = { ...mockUser };
-      vi.mocked(authRepo.createUser).mockResolvedValueOnce(created);
-      vi.mocked(authRepo.createSession).mockResolvedValueOnce("session-id");
+      vi.mocked(authRepo.createUserAndSession).mockResolvedValueOnce({
+        user: created,
+        sessionId: "session-id",
+      });
 
       const res = await request(app)
         .post("/register")
@@ -76,12 +78,14 @@ describe("auth handlers", () => {
         created_at: "2025-01-01T00:00:00.000Z",
       });
       expect(res.headers["set-cookie"]).toBeDefined();
-      expect(authRepo.createUser).toHaveBeenCalledWith("user@example.com", "password123");
-      expect(authRepo.createSession).toHaveBeenCalledWith(id);
+      expect(authRepo.createUserAndSession).toHaveBeenCalledWith(
+        "user@example.com",
+        "password123",
+      );
     });
     it("returns 409 on unique violation (23505)", async () => {
       const err = Object.assign(new Error("duplicate key"), { code: "23505" });
-      vi.mocked(authRepo.createUser).mockRejectedValueOnce(err);
+      vi.mocked(authRepo.createUserAndSession).mockRejectedValueOnce(err);
 
       const res = await request(app)
         .post("/register")
@@ -91,7 +95,7 @@ describe("auth handlers", () => {
       expect(res.body.error.message).toBe("Email already registered");
     });
     it("returns 500 on other errors", async () => {
-      vi.mocked(authRepo.createUser).mockRejectedValueOnce(new Error("DB error"));
+      vi.mocked(authRepo.createUserAndSession).mockRejectedValueOnce(new Error("DB error"));
 
       const res = await request(app)
         .post("/register")
