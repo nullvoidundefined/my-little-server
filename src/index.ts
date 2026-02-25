@@ -4,6 +4,19 @@ import express from "express";
 import helmet from "helmet";
 
 import { corsConfig } from "./config/corsConfig.js";
+
+function validateEnv(): void {
+  if (!process.env.DATABASE_URL) {
+    console.error("Fatal: DATABASE_URL is required");
+    process.exit(1);
+  }
+  if (process.env.NODE_ENV === "production" && !process.env.CORS_ORIGIN) {
+    console.error("Fatal: CORS_ORIGIN is required in production");
+    process.exit(1);
+  }
+}
+validateEnv();
+
 import { httpLogger, logger } from "./config/loggerConfig.js";
 import db from "./db/pool.js";
 import { csrfGuard } from "./middleware/csrfGuard.js";
